@@ -7,12 +7,12 @@
         <template v-for="menu in menuList">
           <el-submenu :index="menu.location" v-if="menu.children.length > 0" :key="menu.id">
             <template slot="title">
-              <i class="el-icon-goods"></i>
+              <i :class="menu.icon"></i>
               <span slot="title">{{ menu.title }}</span>
             </template>
             <el-menu-item-group>
               <el-menu-item :index="subMenu.location" v-for="subMenu in menu.children" :key="subMenu.id">
-                <i class="el-icon-s-tools"></i>
+                <i :class="subMenu.icon"></i>
                 {{ subMenu.title }}
               </el-menu-item>
             </el-menu-item-group>
@@ -29,11 +29,15 @@
         </div>
         <!--头部菜单-->
         <el-menu :default-active="$route.path" class="el-menu-demo" mode="horizontal" router>
-          <el-menu-item v-for="menu in menuList" :key="menu.id" :index="menu.location" @click="closeAsideMenu(menu)">{{ menu.title }}</el-menu-item>
+          <el-menu-item v-for="menu in menuList" :key="menu.id" :index="menu.location" @click="closeAsideMenu(menu)">
+            <i :class="menu.icon"></i>
+            {{ menu.title }}
+          </el-menu-item>
         </el-menu>
         <!--登录信息-->
         <login-info class="login-info"></login-info>
       </el-header>
+      <!--面包屑-->
       <el-breadcrumb separator-class="el-icon-arrow-right" class="breadcrumb-style">
         <el-breadcrumb-item :key="index" v-for="(title, index) in $route.meta.breadcrumb">{{ title }}</el-breadcrumb-item>
       </el-breadcrumb>

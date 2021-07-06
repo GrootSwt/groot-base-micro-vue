@@ -3,7 +3,9 @@
     <!--用户名下拉框-->
     <el-dropdown placement="top" style="cursor: pointer">
       <span class="el-dropdown-link">
-        {{ loginUserInfo.username }}
+        <el-avatar size="medium" :src="headerImg" style="vertical-align: center">
+          {{ loginUserInfo.username }}
+        </el-avatar>
       </span>
       <el-dropdown-menu slot="dropdown" style="text-align: center">
         <el-dropdown-item>
@@ -112,11 +114,22 @@ export default {
   },
   methods: {
     logout () {
-      removeCookie('token')
-      removeCookie('userInfo')
-      removeCookie('roleInfo')
-      removeCookie('menuInfo')
-      this.$router.push('/login')
+      this.$confirm('是否退出系统？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        removeCookie('token')
+        removeCookie('userInfo')
+        removeCookie('roleInfo')
+        removeCookie('menuInfo')
+        this.$router.push('/login')
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消退出'
+        })
+      })
     },
     changePassword () {
       this.changePasswordFlag = true

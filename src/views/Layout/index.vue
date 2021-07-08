@@ -28,7 +28,7 @@
              @click="changeCollapse"/>
         </div>
         <!--头部菜单-->
-        <el-menu :default-active="$route.path" class="el-menu-demo" mode="horizontal" router>
+        <el-menu :default-active="$route.path" mode="horizontal" router>
           <el-menu-item v-for="menu in menuList" :key="menu.id" :index="menu.location" @click="closeAsideMenu(menu)">
             <i :class="menu.icon"></i>
             {{ menu.title }}
@@ -39,7 +39,9 @@
       </el-header>
       <!--面包屑-->
       <el-breadcrumb separator-class="el-icon-arrow-right" class="breadcrumb-style">
-        <el-breadcrumb-item :key="index" v-for="(title, index) in $route.meta.breadcrumb">{{ title }}</el-breadcrumb-item>
+        <el-breadcrumb-item :key="index" v-for="(title, index) in $route.meta.breadcrumb">
+          {{ title }}
+        </el-breadcrumb-item>
       </el-breadcrumb>
       <el-main>
         <router-view/>
@@ -132,10 +134,16 @@ export default {
 .el-menu-vertical:not(.el-menu--collapse) {
   width: 200px;
 }
+
 /*面包屑样式*/
 .breadcrumb-style {
   margin: 12px 18px;
 }
+
+.el-menu.el-menu--horizontal {
+  border-bottom: none;
+}
+
 /*缩放图标*/
 .menu-logo {
   margin-left: 10px;

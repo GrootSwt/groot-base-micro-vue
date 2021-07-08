@@ -4,8 +4,8 @@
     <el-dropdown placement="top" style="cursor: pointer">
       <span class="el-dropdown-link">
         <el-avatar size="medium" :src="headerImg" style="vertical-align: center">
-          {{ loginUserInfo.username }}
         </el-avatar>
+        <!--{{ loginUserInfo.username }}-->
       </span>
       <el-dropdown-menu slot="dropdown" style="text-align: center">
         <el-dropdown-item>

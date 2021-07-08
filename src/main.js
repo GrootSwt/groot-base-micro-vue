@@ -8,6 +8,24 @@ import './plugins/element.js'
 import * as echarts from 'echarts'
 // 引入二次封装的四种请求
 import { getRequest, postRequest, putRequest, deleteRequest } from '@/plugins/request'
+// 引入图标选择器
+import eIconPicker from 'e-icon-picker'
+// 基本彩色图标库
+import 'e-icon-picker/lib/symbol.js'
+// 基本样式，包含基本图标
+import 'e-icon-picker/lib/index.css'
+// font-awesome 图标库
+import 'font-awesome/css/font-awesome.min.css'
+// element-ui 图标库
+import 'element-ui/lib/theme-chalk/icon.css'
+
+// 使用图标选择器
+Vue.use(eIconPicker, {
+  FontAwesome: true,
+  ElementUI: true,
+  eIcon: true,
+  eIconSymbol: true
+})
 
 Vue.config.productionTip = false
 

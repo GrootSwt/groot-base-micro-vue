@@ -1,0 +1,311 @@
+<template>
+  <div>
+    <!--查询输入框、按钮和新增按钮-->
+    <div class="search-add">
+      <div>
+        <el-input placeholder="请输入角色名" v-model="searchName" size="small" clearable
+                  style="width: 70%; margin-right: 10px" @change="pageableSearch"></el-input>
+        <el-button type="primary" size="small" icon="el-icon-search" round @click="pageableSearch">查询</el-button>
+      </div>
+      <div>
+        <el-button type="success" size="small" icon="el-icon-plus" round @click="openAddDialog">新增</el-button>
+        <el-button type="danger" size="small" icon="el-icon-delete" round @click="batchDelete">批量删除</el-button>
+      </div>
+    </div>
+    <!--角色列表-->
+    <el-table stripe :data="roleList" style="width: 100%;" @selection-change="handleSelectionChange">
+      <el-table-column type="selection" width="50">
+      </el-table-column>
+      <el-table-column type="index" label="#" width="50">
+      </el-table-column>
+      <el-table-column prop="name" label="角色名" width="240">
+      </el-table-column>
+      <el-table-column prop="description" label="描述">
+      </el-table-column>
+      <el-table-column label="操作" width="240">
+        <template v-slot="{ row }">
+          <el-button size="mini" type="primary" round @click="openAssignDialog(row.id)">分配权限</el-button>
+          <el-button size="mini" type="warning" round @click="openEditDialog(row)">编辑</el-button>
+          <el-button size="mini" type="danger" round @click="deleteRoleById(row.id)">删除</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+    <!--分页部分-->
+    <el-pagination
+      style="margin-top: 12px; float: right"
+      background
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      :current-page="page"
+      :page-sizes="[5, 10, 15, 20]"
+      :page-size="size"
+      layout="total, sizes, prev, pager, next, jumper"
+      :total="total">
+    </el-pagination>
+    <!--编辑和新增对话框-->
+    <el-dialog
+      :title="dialogTitle"
+      :visible.sync="dialogVisible"
+      width="30%"
+      :before-close="handleClose">
+      <el-form :model="roleForm" :rules="roleFormRules" ref="roleFormRef" label-width="100px">
+        <el-form-item label="角色名称" prop="name">
+          <el-input v-model="roleForm.name"></el-input>
+        </el-form-item>
+        <el-form-item label="角色描述" prop="description">
+          <el-input v-model="roleForm.description"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button round @click="handleClose">取 消</el-button>
+        <el-button type="primary" round @click="handleSubmit">确 定</el-button>
+      </span>
+    </el-dialog>
+    <!--权限分配-->
+    <el-dialog
+      title="分配权限"
+      :visible.sync="assignVisible"
+      width="40%"
+      :before-close="assignClose">
+      <el-tree
+        ref="assignTreeRef"
+        :data="menuTree"
+        show-checkbox
+        node-key="id"
+        :default-checked-keys="roleMenuIds"
+        default-expand-all
+        :expand-on-click-node="false"
+        :props="defaultProps">
+      </el-tree>
+      <span slot="footer" class="dialog-footer">
+        <el-button round @click="assignClose">取 消</el-button>
+        <el-button type="primary" round @click="assignSubmit">分配</el-button>
+      </span>
+    </el-dialog>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'Role',
+  data () {
+    return {
+      searchName: '',
+      roleList: [],
+      page: 1,
+      size: 10,
+      total: 0,
+      isEdit: false,
+      dialogVisible: false,
+      roleForm: {},
+      roleFormRules: {
+        name: [
+          {
+            required: true,
+            message: '请输入角色名称！',
+            trigger: 'blur'
+          },
+          {
+            min: 1,
+            max: 20,
+            message: '角色名称长度范围在1-20之内！',
+            trigger: 'blur'
+          }
+        ],
+        description: [
+          {
+            required: true,
+            message: '请输入角色描述！',
+            trigger: 'blur'
+          },
+          {
+            min: 1,
+            max: 100,
+            message: '角色名称长度范围在1-100之内！',
+            trigger: 'blur'
+          }
+        ]
+      },
+      assignVisible: false,
+      defaultProps: {
+        children: 'children',
+        label: 'title'
+      },
+      menuTree: [],
+      roleMenuIds: [],
+      assignRoleId: 0,
+      selectedRoleIds: []
+    }
+  },
+  computed: {
+    dialogTitle () {
+      return this.isEdit ? '编辑' : '新增'
+    }
+  },
+  created () {
+    this.pageableSearch()
+    this.getMenuTree()
+  },
+  methods: {
+    // 获取菜单节点
+    getMenuTree () {
+      this.getRequest('/micro-user/menu/getAllMenu').then(res => {
+        if (res.status !== 'success') {
+          this.$message.error('获取菜单失败！')
+        }
+        this.menuTree = res.data
+      })
+    },
+    // 条件分页查询角色
+    pageableSearch () {
+      let url = `/micro-user/role/pageableSearch?page=${this.page - 1}&size = ${this.size}`
+      if (this.searchName) {
+        url += `&s_name=${this.searchName}`
+      }
+      this.getRequest(url).then(res => {
+        if (res.status !== 'success') {
+          return this.$message.error('获取菜单列表失败！')
+        }
+        this.roleList = res.data.content
+        this.total = res.data.totalElements
+      })
+    },
+    // 每页数据条数改变
+    handleSizeChange (size) {
+      this.size = size
+      this.pageableSearch()
+    },
+    // 页码改变
+    handleCurrentChange (page) {
+      this.page = page
+      this.pageableSearch()
+    },
+    // 取消角色编辑或新增
+    handleClose () {
+      this.$refs.roleFormRef.resetFields()
+      this.roleForm = {}
+      this.dialogVisible = false
+    },
+    // 提交角色编辑或新增
+    handleSubmit () {
+      this.$refs.roleFormRef.validate(valid => {
+        if (!valid) {
+          return this.$message.error('请根据提示完善表单信息！')
+        }
+        this.postRequest('/micro-user/role/saveRole', this.roleForm).then(res => {
+          if (res.status !== 'success') {
+            return this.$message.error('保存角色失败！')
+          }
+          this.pageableSearch()
+          this.handleClose()
+          this.$message.success('保存角色成功！')
+        })
+      })
+    },
+    // 打开新增角色对话框
+    openAddDialog () {
+      this.isEdit = false
+      this.dialogVisible = true
+    },
+    // 打开编辑角色对话框
+    openEditDialog (editRole) {
+      this.$set(this.roleForm, 'id', editRole.id)
+      this.$set(this.roleForm, 'name', editRole.name)
+      this.$set(this.roleForm, 'description', editRole.description)
+      this.isEdit = true
+      this.dialogVisible = true
+    },
+    // 关闭分配菜单
+    assignClose () {
+      this.assignVisible = false
+    },
+    // 提交分配菜单
+    assignSubmit () {
+      const halfCheckedKeys = this.$refs.assignTreeRef.getHalfCheckedKeys()
+      const checkedKeys = this.$refs.assignTreeRef.getCheckedKeys()
+      const allMenuIds = [...halfCheckedKeys, ...checkedKeys]
+      this.putRequest(`/micro-user/role/${this.assignRoleId}/assignPermissions`, allMenuIds).then(res => {
+        if (res.status !== 'success') {
+          return this.$message.error('角色分配菜单失败！')
+        }
+        this.roleMenuIds = []
+        this.pageableSearch()
+        this.assignVisible = false
+        this.$message.success('角色分配菜单成功！')
+      })
+    },
+    // 打开分配菜单对话框
+    openAssignDialog (id) {
+      this.assignRoleId = id
+      this.getRequest(`/micro-user/role/${id}/getMenuIdArrByRoleId`).then(res => {
+        if (res.status !== 'success') {
+          return this.$message.error('获取关联菜单失败！')
+        }
+        this.roleMenuIds = res.data
+        this.assignVisible = true
+      })
+    },
+    // 角色表单批量选择数据
+    handleSelectionChange (selection) {
+      const roleIds = []
+      selection.forEach(role => {
+        roleIds.push(role.id)
+      })
+      this.selectedRoleIds = roleIds
+    },
+    delete (ids) {
+      this.deleteRequest(`/micro-user/role/batchDeleteByIds?ids=${ids}`).then(res => {
+        if (res.status !== 'success') {
+          return this.$message.error('批量删除失败！')
+        }
+        this.pageableSearch()
+        this.$message.success('批量删除成功！')
+      })
+    },
+    // 批量删除角色
+    batchDelete () {
+      if (this.selectedRoleIds.length === 0) {
+        return this.$message.info('请选择将要删除的角色！')
+      }
+      this.$confirm('此操作将批量删除角色, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.delete(this.selectedRoleIds)
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
+      })
+    },
+    // 根据Id删除
+    deleteRoleById (id) {
+      const ids = [id]
+      this.$confirm('此操作将永久该角色, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.delete(ids)
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
+      })
+    }
+  }
+}
+</script>
+
+<style scoped>
+.search-add {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+</style>

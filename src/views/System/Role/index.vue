@@ -50,15 +50,15 @@
       :before-close="handleClose">
       <el-form :model="roleForm" :rules="roleFormRules" ref="roleFormRef" label-width="100px">
         <el-form-item label="角色名称" prop="name">
-          <el-input v-model="roleForm.name"></el-input>
+          <el-input size="small" v-model="roleForm.name"></el-input>
         </el-form-item>
         <el-form-item label="角色描述" prop="description">
-          <el-input v-model="roleForm.description"></el-input>
+          <el-input size="small" v-model="roleForm.description"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button round @click="handleClose">取 消</el-button>
-        <el-button type="primary" round @click="handleSubmit">确 定</el-button>
+        <el-button size="small" round @click="handleClose">取 消</el-button>
+        <el-button size="small" type="primary" round @click="handleSubmit">提 交</el-button>
       </span>
     </el-dialog>
     <!--权限分配-->
@@ -78,8 +78,8 @@
         :props="defaultProps">
       </el-tree>
       <span slot="footer" class="dialog-footer">
-        <el-button round @click="assignClose">取 消</el-button>
-        <el-button type="primary" round @click="assignSubmit">分配</el-button>
+        <el-button size="small" round @click="assignClose">取 消</el-button>
+        <el-button size="small" type="primary" round @click="assignSubmit">分配</el-button>
       </span>
     </el-dialog>
   </div>

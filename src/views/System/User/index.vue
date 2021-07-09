@@ -1,0 +1,347 @@
+<template>
+  <div>
+    <!--查询输入框、按钮和新增按钮-->
+    <div class="search-add">
+      <div>
+        <el-input placeholder="请输入用户名" v-model="searchData.username" size="small" clearable
+                  @clear="pageableSearch" @keyup.enter.native="pageableSearch"
+                  style="width: 35%; margin-right: 10px"></el-input>
+        <el-input placeholder="请输入角色名" v-model="searchData.roleName" size="small" clearable
+                  @clear="pageableSearch" @keyup.enter.native="pageableSearch"
+                  style="width: 35%; margin-right: 10px"></el-input>
+        <el-button type="primary" size="small" icon="el-icon-search" round @click="pageableSearch">查询</el-button>
+      </div>
+      <div>
+        <el-button type="success" size="small" icon="el-icon-plus" round @click="openAddDialog">新增</el-button>
+        <el-button type="danger" size="small" icon="el-icon-delete" round @click="batchDelete">批量删除</el-button>
+      </div>
+    </div>
+    <!--角色列表-->
+    <el-table border stripe :data="userList" style="width: 100%;" @selection-change="handleSelectionChange">
+      <el-table-column type="selection" width="50" align="center" :selectable="isSelectable">
+      </el-table-column>
+      <el-table-column type="index" label="#" width="50" align="center">
+      </el-table-column>
+      <el-table-column prop="username" label="用户名">
+      </el-table-column>
+      <el-table-column prop="loginName" label="账号">
+      </el-table-column>
+      <el-table-column prop="phoneNumber" label="联系方式" width="200">
+      </el-table-column>
+      <el-table-column prop="email" label="邮箱" width="240">
+      </el-table-column>
+      <el-table-column prop="roleName" label="角色名" width="240">
+      </el-table-column>
+      <el-table-column label="操作" width="180">
+        <template v-slot="{ row }">
+          <el-button size="mini" type="warning" round @click="openEditDialog(row)">编辑</el-button>
+          <el-button size="mini" type="danger" round :disabled="row.id === 1" @click="deleteRoleById(row.id)">删除
+          </el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+    <!--分页部分-->
+    <el-pagination
+      style="margin-top: 12px; float: right"
+      background
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      :current-page="page"
+      :page-sizes="[5, 10, 15, 20]"
+      :page-size="size"
+      layout="total, sizes, prev, pager, next, jumper"
+      :total="total">
+    </el-pagination>
+    <el-dialog
+      :title="editStatus ? '编辑' : '新增'"
+      :visible.sync="editOrAddVisible"
+      width="30%"
+      :before-close="addOrEditCancel">
+      <el-form :model="userForm" :rules="userFormRules" ref="userFormRef" label-width="80px">
+        <el-form-item label="账号" prop="loginName" v-if="!editStatus">
+          <el-input v-model="userForm.loginName"></el-input>
+        </el-form-item>
+        <el-form-item label="密码" prop="password" v-if="!editStatus">
+          <el-input v-model="userForm.password"></el-input>
+        </el-form-item>
+        <el-form-item label="用户名" prop="username">
+          <el-input v-model="userForm.username"></el-input>
+        </el-form-item>
+        <el-form-item label="联系方式" prop="phoneNumber">
+          <el-input v-model="userForm.phoneNumber"></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱" prop="email">
+          <el-input v-model="userForm.email"></el-input>
+        </el-form-item>
+        <el-form-item label="角色" prop="roleId" v-if="userForm.id !== 1">
+          <el-select v-model="userForm.roleId" placeholder="请选择角色">
+            <el-option
+              v-for="item in roleList"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button size="mini" round @click="addOrEditCancel">取 消</el-button>
+        <el-button size="mini" round type="primary" @click="addOrEditSubmit">确 定</el-button>
+      </span>
+    </el-dialog>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'User',
+  data () {
+    return {
+      searchData: {
+        username: '',
+        roleName: ''
+      },
+      page: 1,
+      size: 10,
+      total: 0,
+      userList: [],
+      // 批量删除id列表
+      batchDeleteIdArr: [],
+      editStatus: false,
+      editOrAddVisible: false,
+      userForm: {
+        loginName: '',
+        password: '',
+        username: '',
+        phoneNumber: '',
+        email: '',
+        roleId: 0
+      },
+      userFormRules: {
+        loginName: [
+          {
+            required: true,
+            message: '请输入账号',
+            trigger: 'blur'
+          },
+          {
+            min: 1,
+            max: 20,
+            message: '账号的长度范围1-20',
+            trigger: 'blur'
+          }
+        ],
+        password: [
+          {
+            required: true,
+            message: '请输入密码',
+            trigger: 'blur'
+          },
+          {
+            min: 1,
+            max: 20,
+            message: '密码的长度范围1-20',
+            trigger: 'blur'
+          }
+        ],
+        username: [
+          {
+            required: true,
+            message: '请输入用户名',
+            trigger: 'blur'
+          },
+          {
+            min: 1,
+            max: 20,
+            message: '用户名的长度范围1-20',
+            trigger: 'blur'
+          }
+        ],
+        phoneNumber: [
+          {
+            required: true,
+            message: '请输入联系方式',
+            trigger: 'blur'
+          },
+          {
+            min: 1,
+            max: 20,
+            message: '联系方式的长度范围3-20',
+            trigger: 'blur'
+          }
+        ],
+        email: [
+          {
+            required: true,
+            message: '请输入邮箱',
+            trigger: 'blur'
+          },
+          {
+            min: 1,
+            max: 30,
+            message: '邮箱的长度范围5-30',
+            trigger: 'blur'
+          }
+        ],
+        roleId: [
+          {
+            required: true,
+            message: '请选择角色',
+            trigger: 'blur'
+          }
+        ]
+      },
+      roleList: []
+    }
+  },
+  created () {
+    this.getAllRoleList()
+    this.pageableSearch()
+  },
+  methods: {
+    // 角色列表
+    getAllRoleList () {
+      this.getRequest('/micro-user/role/getAllRoleList').then(res => {
+        if (res.status !== 'success') {
+          return this.$message.error('获取全部角色列表失败！')
+        }
+        this.roleList = res.data
+      })
+    },
+    // 条件分页查询用户
+    pageableSearch () {
+      let url = `/micro-user/user/pageableSearch?page=${this.page - 1}&size=${this.size}`
+      if (this.searchData.username !== '') {
+        url += `&s_username=${this.searchData.username}`
+      }
+      if (this.searchData.roleName !== '') {
+        url += `&s_roleName=${this.searchData.roleName}`
+      }
+      this.getRequest(url).then(res => {
+        if (res.status !== 'success') {
+          this.$message.error('获取用户列表失败！')
+        }
+        this.userList = res.data.content
+        this.total = res.data.totalElements
+      })
+    },
+    isSelectable (row) {
+      return row.id !== 1
+    },
+    // 批量删除
+    batchDelete () {
+      if (this.batchDeleteIdArr.length === 0) {
+        return this.$message.info('请选择将要删除的用户！')
+      }
+      this.$confirm('此操作将删除所有选中用户, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.deleteRequest(`/micro-user/user/batchDelete?idArr=${this.batchDeleteIdArr}`).then(res => {
+          if (res.status !== 'success') {
+            return this.$message.error('批量删除失败！')
+          }
+          this.pageableSearch()
+          this.$message.success('批量删除成功！')
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
+      })
+    },
+    handleSelectionChange (selection) {
+      const selectionUserIds = []
+      selection.forEach(user => {
+        selectionUserIds.push(user.id)
+      })
+      this.batchDeleteIdArr = selectionUserIds
+    },
+    // 打开新增对话框
+    openAddDialog () {
+      this.editStatus = false
+      this.editOrAddVisible = true
+    },
+    // 开启编辑对话框
+    openEditDialog (user) {
+      this.userForm = JSON.parse(JSON.stringify(user))
+      this.editStatus = true
+      this.editOrAddVisible = true
+    },
+    // 根据用户Id删除用户
+    deleteRoleById (userId) {
+      this.$confirm('此操作将删除该用户, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        const deleteIds = [userId]
+        this.deleteRequest(`/micro-user/user/batchDelete?idArr=${deleteIds}`).then(res => {
+          if (res.status !== 'success') {
+            return this.$message.error('删除失败！')
+          }
+          this.pageableSearch()
+          this.$message.success('删除成功！')
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
+      })
+    },
+    // 每页数据量改变
+    handleSizeChange (size) {
+      this.size = size
+      this.pageableSearch()
+    },
+    // 页码改变
+    handleCurrentChange (page) {
+      this.page = page
+      this.pageableSearch()
+    },
+    // 取消新增或者编辑用户
+    addOrEditCancel () {
+      this.$refs.userFormRef.resetFields()
+      this.userForm = {}
+      this.editOrAddVisible = false
+    },
+    // 提交编辑或新增用户
+    addOrEditSubmit () {
+      this.$refs.userFormRef.validate(valid => {
+        if (!valid) {
+          return this.$message.error('请根据提示完善用户表单！')
+        }
+        this.postRequest('/micro-user/user/addOrEditUser', this.userForm).then(res => {
+          if (res.status !== 'success') {
+            if (this.editStatus) {
+              return this.$message.error('编辑用户操作失败！')
+            } else {
+              return this.$message.error('新增用户失败！')
+            }
+          }
+          this.pageableSearch()
+          this.addOrEditCancel()
+          if (this.editStatus) {
+            return this.$message.success('编辑用户成功！')
+          } else {
+            return this.$message.success('新增用户成功！')
+          }
+        })
+      })
+    }
+  }
+}
+</script>
+
+<style scoped>
+.search-add {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+</style>

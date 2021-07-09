@@ -13,10 +13,10 @@
       </div>
     </div>
     <!--角色列表-->
-    <el-table stripe :data="roleList" style="width: 100%;" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="50">
+    <el-table border stripe :data="roleList" style="width: 100%;" @selection-change="handleSelectionChange">
+      <el-table-column type="selection" width="50" align="center" :selectable="selectable">
       </el-table-column>
-      <el-table-column type="index" label="#" width="50">
+      <el-table-column type="index" label="#" width="50" align="center">
       </el-table-column>
       <el-table-column prop="name" label="角色名" width="240">
       </el-table-column>
@@ -24,9 +24,9 @@
       </el-table-column>
       <el-table-column label="操作" width="240">
         <template v-slot="{ row }">
-          <el-button size="mini" type="primary" round @click="openAssignDialog(row.id)">分配权限</el-button>
+          <el-button size="mini" type="primary" round :disabled="row.id === 0" @click="openAssignDialog(row.id)">分配权限</el-button>
           <el-button size="mini" type="warning" round @click="openEditDialog(row)">编辑</el-button>
-          <el-button size="mini" type="danger" round @click="deleteRoleById(row.id)">删除</el-button>
+          <el-button size="mini" type="danger" round :disabled="row.id === 0" @click="deleteRoleById(row.id)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -90,14 +90,23 @@ export default {
   name: 'Role',
   data () {
     return {
+      // 查询条件角色名
       searchName: '',
+      // 角色列表
       roleList: [],
+      // 页码
       page: 1,
+      // 每页数据条数
       size: 10,
+      // 数据总数
       total: 0,
+      // 是否为编辑对话框
       isEdit: false,
+      // 编辑或新增对话框标志
       dialogVisible: false,
+      // 编辑或新增角色表单
       roleForm: {},
+      // 编辑或新增角色表单校验规则
       roleFormRules: {
         name: [
           {
@@ -126,14 +135,20 @@ export default {
           }
         ]
       },
+      // 菜单分配对话框标志
       assignVisible: false,
+      // 菜单Tree配置
       defaultProps: {
         children: 'children',
         label: 'title'
       },
+      // 菜单树
       menuTree: [],
+      // 角色对菜单Ids
       roleMenuIds: [],
+      // 菜单分配角色Id
       assignRoleId: 0,
+      // 批量删除选中Ids
       selectedRoleIds: []
     }
   },
@@ -295,6 +310,9 @@ export default {
           message: '已取消删除'
         })
       })
+    },
+    selectable (row) {
+      return row.id !== 0
     }
   }
 }

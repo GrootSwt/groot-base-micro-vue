@@ -1,6 +1,7 @@
 import Menu from './Menu'
 import Role from './Role'
 import User from './User'
+
 export default {
   path: 'system',
   name: 'System',

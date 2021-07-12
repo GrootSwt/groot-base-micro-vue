@@ -22,7 +22,7 @@
       </el-table-column>
       <el-table-column prop="description" label="描述">
       </el-table-column>
-      <el-table-column prop="enabled" label="启用">
+      <el-table-column prop="enabled" label="启用" width="100">
         <template v-slot="{ row }">
           <el-switch
             v-model="row.enabled"

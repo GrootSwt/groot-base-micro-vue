@@ -16,7 +16,7 @@
         <el-button type="danger" size="small" icon="el-icon-delete" round @click="batchDelete">批量删除</el-button>
       </div>
     </div>
-    <!--角色列表-->
+    <!--用户列表-->
     <el-table border stripe :data="userList" style="width: 100%;" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="50" align="center" :selectable="isSelectable">
       </el-table-column>
@@ -31,6 +31,19 @@
       <el-table-column prop="email" label="邮箱" width="240">
       </el-table-column>
       <el-table-column prop="roleName" label="角色名" width="240">
+      </el-table-column>
+      <el-table-column prop="enabled" label="启用状态" width="100">
+        <template v-slot="{ row }">
+          <el-switch
+            v-model="row.enabled"
+            :disabled="row.id === 1"
+            active-value="1"
+            inactive-value="0"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+            @change="changeUserEnabled(row.id, row.enabled)">
+          </el-switch>
+        </template>
       </el-table-column>
       <el-table-column label="操作" width="180">
         <template v-slot="{ row }">
@@ -52,6 +65,7 @@
       layout="total, sizes, prev, pager, next, jumper"
       :total="total">
     </el-pagination>
+    <!--编辑或新增对话框-->
     <el-dialog
       :title="editStatus ? '编辑' : '新增'"
       :visible.sync="editOrAddVisible"
@@ -62,16 +76,16 @@
           <el-input v-model="userForm.loginName"></el-input>
         </el-form-item>
         <el-form-item label="密码" prop="password" v-if="!editStatus">
-          <el-input v-model="userForm.password"></el-input>
+          <el-input type="password" v-model="userForm.password"></el-input>
         </el-form-item>
         <el-form-item label="用户名" prop="username">
           <el-input v-model="userForm.username"></el-input>
         </el-form-item>
         <el-form-item label="联系方式" prop="phoneNumber">
-          <el-input v-model="userForm.phoneNumber"></el-input>
+          <el-input type="tel" v-model="userForm.phoneNumber"></el-input>
         </el-form-item>
         <el-form-item label="邮箱" prop="email">
-          <el-input v-model="userForm.email"></el-input>
+          <el-input type="email" v-model="userForm.email"></el-input>
         </el-form-item>
         <el-form-item label="角色" prop="roleId" v-if="userForm.id !== 1">
           <el-select v-model="userForm.roleId" placeholder="请选择角色">
@@ -82,6 +96,16 @@
               :value="item.id">
             </el-option>
           </el-select>
+        </el-form-item>
+        <el-form-item label="启用状态" prop="enabled">
+          <el-switch
+            v-model="userForm.enabled"
+            :disabled="userForm.id === 1"
+            active-value="1"
+            inactive-value="0"
+            active-color="#13ce66"
+            inactive-color="#ff4949">
+          </el-switch>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -96,6 +120,21 @@
 export default {
   name: 'User',
   data () {
+    const checkRoleId = (rule, value, callback) => {
+      let flag = true
+      this.roleList.forEach(role => {
+        if (role.id === value) {
+          if (role.enabled === '0') {
+            flag = false
+          }
+        }
+      })
+      if (!flag) {
+        return callback(new Error('该角色未启用，请选择其他角色！'))
+      } else {
+        return callback()
+      }
+    }
     return {
       searchData: {
         username: '',
@@ -115,7 +154,8 @@ export default {
         username: '',
         phoneNumber: '',
         email: '',
-        roleId: 0
+        roleId: 0,
+        enabled: '1'
       },
       userFormRules: {
         loginName: [
@@ -188,6 +228,10 @@ export default {
             required: true,
             message: '请选择角色',
             trigger: 'blur'
+          },
+          {
+            validator: checkRoleId,
+            trigger: 'change'
           }
         ]
       },
@@ -305,7 +349,6 @@ export default {
     // 取消新增或者编辑用户
     addOrEditCancel () {
       this.$refs.userFormRef.resetFields()
-      this.userForm = {}
       this.editOrAddVisible = false
     },
     // 提交编辑或新增用户
@@ -330,6 +373,20 @@ export default {
             return this.$message.success('新增用户成功！')
           }
         })
+      })
+    },
+    // 更改用户的启用状态
+    changeUserEnabled (id, enabled) {
+      const user = {
+        id,
+        enabled
+      }
+      this.putRequest('/micro-user/user/changeUserEnabled', user).then(res => {
+        if (res.status !== 'success') {
+          return this.$message.error('更改该用户的启用状态失败！')
+        }
+        this.pageableSearch()
+        this.$message.success('更改该用户的启用状态成功！')
       })
     }
   }

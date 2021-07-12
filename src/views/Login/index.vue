@@ -68,7 +68,7 @@ export default {
         }
         this.postRequest('/micro-user/login', this.loginFormData).then(res => {
           if (res.status !== 'success') {
-            return this.$message.error('登录失败，账号或密码错误！')
+            return this.$message.error(res.message)
           }
           // 用户信息
           this.setLoginUserInfo(res.data.userInfo)

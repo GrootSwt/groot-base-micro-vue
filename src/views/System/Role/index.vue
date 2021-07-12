@@ -22,11 +22,26 @@
       </el-table-column>
       <el-table-column prop="description" label="描述">
       </el-table-column>
+      <el-table-column prop="enabled" label="启用">
+        <template v-slot="{ row }">
+          <el-switch
+            v-model="row.enabled"
+            :disabled="row.id === 0"
+            active-value="1"
+            inactive-value="0"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+            @change="changeRoleEnabled(row.id,row.enabled)">
+          </el-switch>
+        </template>
+      </el-table-column>
       <el-table-column label="操作" width="240">
         <template v-slot="{ row }">
-          <el-button size="mini" type="primary" round :disabled="row.id === 0" @click="openAssignDialog(row.id)">分配权限</el-button>
+          <el-button size="mini" type="primary" round :disabled="row.id === 0" @click="openAssignDialog(row.id)">分配权限
+          </el-button>
           <el-button size="mini" type="warning" round @click="openEditDialog(row)">编辑</el-button>
-          <el-button size="mini" type="danger" round :disabled="row.id === 0" @click="deleteRoleById(row.id)">删除</el-button>
+          <el-button size="mini" type="danger" round :disabled="row.id === 0" @click="deleteRoleById(row.id)">删除
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -54,6 +69,15 @@
         </el-form-item>
         <el-form-item label="角色描述" prop="description">
           <el-input size="small" v-model="roleForm.description"></el-input>
+        </el-form-item>
+        <el-form-item label="启用状态" prop="enabled">
+          <el-switch
+            v-model="roleForm.enabled"
+            active-value="1"
+            inactive-value="0"
+            active-color="#13ce66"
+            inactive-color="#ff4949">
+          </el-switch>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -105,7 +129,11 @@ export default {
       // 编辑或新增对话框标志
       dialogVisible: false,
       // 编辑或新增角色表单
-      roleForm: {},
+      roleForm: {
+        name: '',
+        description: '',
+        enabled: '1'
+      },
       // 编辑或新增角色表单校验规则
       roleFormRules: {
         name: [
@@ -311,8 +339,23 @@ export default {
         })
       })
     },
+    // table多选框是否可选
     selectable (row) {
       return row.id !== 0
+    },
+    // 修改角色启用状态
+    changeRoleEnabled (id, enabled) {
+      const role = {
+        id,
+        enabled
+      }
+      this.putRequest('/micro-user/role/changeRoleEnabled', role).then(res => {
+        if (res.status !== 'success') {
+          return this.$message.error('该角色修改启用状态失败！')
+        }
+        this.pageableSearch()
+        this.$message.success('该角色修改启用状态成功！')
+      })
     }
   }
 }

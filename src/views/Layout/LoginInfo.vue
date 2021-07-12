@@ -3,9 +3,9 @@
     <!--用户名下拉框-->
     <el-dropdown placement="top" style="cursor: pointer">
       <span class="el-dropdown-link">
-        <el-avatar size="medium" :src="headerImg" style="vertical-align: center">
-        </el-avatar>
-        <!--{{ loginUserInfo.username }}-->
+        <!--<el-avatar size="medium" :src="headerImg" style="vertical-align: center">-->
+        <!--</el-avatar>-->
+        {{ loginUserInfo.username }}
       </span>
       <el-dropdown-menu slot="dropdown" style="text-align: center">
         <el-dropdown-item>
@@ -43,7 +43,7 @@
 
 <script>
 import { mapState } from 'vuex'
-import { removeCookie } from '@/utils/cookies'
+import { removeCookie, getCookie } from '@/utils/cookies'
 
 export default {
   name: 'LoginInfo',
@@ -113,6 +113,7 @@ export default {
   mounted () {
   },
   methods: {
+    // 退出
     logout () {
       this.$confirm('是否退出系统？', '提示', {
         confirmButtonText: '确定',
@@ -134,16 +135,27 @@ export default {
     changePassword () {
       this.changePasswordFlag = true
     },
+    // 提交修改密码
     submit () {
       this.$refs.passwordFormRef.validate(valid => {
         if (!valid) {
           return this.$message.error('旧密码或新密码未输入或输入错误！')
         }
-        this.$refs.passwordFormRef.resetFields()
-        this.$message.success('密码更改成功！')
-        this.changePasswordFlag = false
+        const userInfo = JSON.parse(getCookie('userInfo'))
+        this.putRequest('/micro-user/changePassword', {
+          id: userInfo.id,
+          oldPassword: this.passwordForm.oldPassword,
+          newPassword: this.passwordForm.newPassword
+        }).then(res => {
+          if (res.status !== 'success') {
+            return this.$message.error(res.message)
+          }
+          this.$message.success('密码更改成功！')
+          this.logout()
+        })
       })
     },
+    // 取消修改密码
     cancel () {
       this.$refs.passwordFormRef.resetFields()
       this.changePasswordFlag = false

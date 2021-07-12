@@ -247,7 +247,6 @@ export default {
             return this.$message.error('保存菜单失败！')
           }
           this.menuTree = res.data
-          this.resetMenu()
           this.$message.success('保存菜单成功！')
         })
       })

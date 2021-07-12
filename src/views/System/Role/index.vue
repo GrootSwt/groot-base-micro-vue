@@ -164,7 +164,7 @@ export default {
   methods: {
     // 获取菜单节点
     getMenuTree () {
-      this.getRequest('/micro-user/menu/getAllMenu').then(res => {
+      this.getRequest('/micro-user/menu/getAllMenuForUser').then(res => {
         if (res.status !== 'success') {
           this.$message.error('获取菜单失败！')
         }

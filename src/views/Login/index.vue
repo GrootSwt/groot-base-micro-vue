@@ -76,9 +76,8 @@ export default {
           this.setMenuList(res.data.menu)
           // 角色信息
           this.setRoleInfo(res.data.role)
-          const expireTime = new Date(new Date().getTime() + 60 * 1000 * 60 * 2)
-          setCookie('userInfo', res.data.userInfo, { expires: expireTime })
-          setCookie('token', res.data.token, { expires: expireTime })
+          setCookie('userInfo', res.data.userInfo)
+          setCookie('token', res.data.token)
           this.cancel()
           this.$router.push({ path: this.redirect ? this.redirect : '/' })
         })

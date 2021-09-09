@@ -22,6 +22,7 @@
 <script>
 import { mapActions, mapState, mapMutations } from 'vuex'
 import { setCookie } from '@/utils/cookies'
+import { login } from '@/api/user'
 
 export default {
   name: 'Login',
@@ -66,7 +67,7 @@ export default {
         if (!valid) {
           return this.$message.error('帐号或密码未填写！')
         }
-        this.postRequest('/micro-user/login', this.loginFormData).then(res => {
+        login(this.loginFormData).then(res => {
           if (res.status !== 'success') {
             return this.$message.error(res.message)
           }

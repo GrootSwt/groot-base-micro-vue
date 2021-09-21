@@ -54,6 +54,7 @@
 import { mapState, mapActions, mapMutations } from 'vuex'
 import LoginInfo from '@/views/Layout/LoginInfo'
 import { getCookie } from '@/utils/cookies'
+import { getMenuTree } from '@/api/user'
 
 export default {
   name: 'layout',
@@ -77,7 +78,7 @@ export default {
   created () {
     const userInfo = JSON.parse(getCookie('userInfo'))
     this.setLoginUserInfo(userInfo)
-    this.getRequest(`/micro-user/menu/getMenuListByRoleId/${userInfo.roleId}`).then(res => {
+    getMenuTree({ roleId: userInfo.roleId }).then(res => {
       if (res.status === 'success') {
         this.setMenuList(res.data)
       }

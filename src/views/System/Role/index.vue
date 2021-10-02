@@ -73,6 +73,7 @@
         <el-form-item label="启用状态" prop="enabled">
           <el-switch
             v-model="roleForm.enabled"
+            :disabled="roleForm.id === 0"
             active-value="1"
             inactive-value="0"
             active-color="#13ce66"

@@ -1,7 +1,7 @@
 <template>
   <el-container class="layout-style">
     <!--侧边菜单栏-->
-    <el-aside :width="asideWidth">
+    <el-aside :width="asideWidth" v-if="hasAsideMenu">
       <el-menu ref="asideMenuRef" :default-active="$route.path" :collapse="isCollapse" :unique-opened="true" router
                class="el-menu-vertical">
         <template v-for="menu in menuList">
@@ -11,10 +11,9 @@
               <span slot="title">{{ menu.title }}</span>
             </template>
             <el-menu-item-group>
-              <el-menu-item :index="subMenu.location" v-for="subMenu in menu.children" :key="subMenu.id">
-                <i :class="subMenu.icon"></i>
-                {{ subMenu.title }}
-              </el-menu-item>
+              <template v-for="subMenu in menu.children">
+                <aside-menu :menu="subMenu" :key="subMenu.id"></aside-menu>
+              </template>
             </el-menu-item-group>
           </el-submenu>
         </template>
@@ -25,6 +24,7 @@
         <!--菜单折叠按钮-->
         <div class="menu-system-logo">
           <i :class="collapseClass"
+             v-if="hasAsideMenu"
              @click="changeCollapse"/>
         </div>
         <!--头部菜单-->
@@ -55,10 +55,11 @@ import { mapState, mapActions, mapMutations } from 'vuex'
 import LoginInfo from '@/views/Layout/LoginInfo'
 import { getCookie } from '@/utils/cookies'
 import { getMenuTree } from '@/api/user'
+import AsideMenu from '@/views/Layout/AsideMenu'
 
 export default {
   name: 'layout',
-  components: { LoginInfo },
+  components: { AsideMenu, LoginInfo },
   data () {
     return {
       isCollapse: false
@@ -73,6 +74,15 @@ export default {
     },
     asideWidth () {
       return this.isCollapse ? '65' : '200'
+    },
+    hasAsideMenu () {
+      console.log(this.menuList)
+      for (let i = 0; i < this.menuList.length; i++) {
+        if (this.menuList[i].children.length !== 0) {
+          return true
+        }
+      }
+      return false
     }
   },
   created () {

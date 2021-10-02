@@ -12,7 +12,7 @@
         <el-button type="primary" size="small" icon="el-icon-search" round @click="pageableSearch">查询</el-button>
       </div>
       <div>
-        <el-button type="success" size="small" icon="el-icon-plus" round @click="openAddDialog">新增</el-button>
+        <!--<el-button type="success" size="small" icon="el-icon-plus" round @click="openAddDialog">新增</el-button>-->
         <el-button type="danger" size="small" icon="el-icon-delete" round @click="batchDelete">批量删除</el-button>
       </div>
     </div>
@@ -47,7 +47,9 @@
       </el-table-column>
       <el-table-column label="操作" width="180">
         <template v-slot="{ row }">
-          <el-button size="mini" type="warning" round @click="openEditDialog(row)">编辑</el-button>
+          <!--<el-button size="mini" type="warning" round @click="openEditDialog(row)">编辑</el-button>-->
+          <el-button size="mini" type="warning" round @click="openAuthorizeDialog(row)" :disabled="row.id === 1">授权
+          </el-button>
           <el-button size="mini" type="danger" round :disabled="row.id === 1" @click="deleteRoleById(row.id)">删除
           </el-button>
         </template>
@@ -113,10 +115,36 @@
         <el-button size="mini" round type="primary" @click="addOrEditSubmit">确 定</el-button>
       </span>
     </el-dialog>
+    <!--授权对话框-->
+    <el-dialog
+      title="提示"
+      :visible.sync="authorizeDialogFlag"
+      width="30%"
+      :before-close="closeAuthorizeDialog">
+      <el-form :model="authorizeForm" :rules="authorizeFormRules" ref="authorizeFormRef" label-width="100px"
+               class="demo-ruleForm">
+        <el-form-item label="用户角色" prop="roleId" v-if="userForm.id !== 1">
+          <el-select v-model="authorizeForm.roleId" placeholder="请选择角色">
+            <el-option
+              v-for="item in roleList"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+    <el-button size="mini" round @click="closeAuthorizeDialog">取 消</el-button>
+    <el-button size="mini" round type="primary" @click="submitAuthorization">确 定</el-button>
+  </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
+import { authorization } from '@/api/user'
+
 export default {
   name: 'User',
   data () {
@@ -235,7 +263,21 @@ export default {
           }
         ]
       },
-      roleList: []
+      roleList: [],
+      authorizeDialogFlag: false,
+      authorizeForm: {
+        id: '',
+        roleId: ''
+      },
+      authorizeFormRules: {
+        roleId: [
+          {
+            required: true,
+            message: '请选择用户角色！',
+            trigger: 'blur'
+          }
+        ]
+      }
     }
   },
   created () {
@@ -387,6 +429,34 @@ export default {
         }
         this.pageableSearch()
         this.$message.success('更改该用户的启用状态成功！')
+      })
+    },
+    // 打开授权对话框
+    openAuthorizeDialog (userInfo) {
+      this.authorizeForm.id = userInfo.id
+      this.authorizeForm.roleId = userInfo.roleId
+      this.authorizeDialogFlag = true
+    },
+    // 关闭授权对话框
+    closeAuthorizeDialog () {
+      this.$refs.authorizeFormRef.resetFields()
+      this.authorizeDialogFlag = false
+    },
+    // 提交授权
+    submitAuthorization () {
+      this.$refs.authorizeFormRef.validate(valid => {
+        if (!valid) {
+          return this.$message.error('请根据提示完善表单信息！')
+        }
+        authorization(this.authorizeForm).then(res => {
+          console.log(res)
+          if (res.status !== 'success') {
+            return this.$message.error(res.message)
+          }
+          this.pageableSearch()
+          this.$message.success(res.message)
+          this.closeAuthorizeDialog()
+        })
       })
     }
   }

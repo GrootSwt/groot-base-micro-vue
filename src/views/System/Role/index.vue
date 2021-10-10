@@ -26,7 +26,7 @@
         <template v-slot="{ row }">
           <el-switch
             v-model="row.enabled"
-            :disabled="row.id === 0"
+            :disabled="row.id === 1"
             active-value="1"
             inactive-value="0"
             active-color="#13ce66"
@@ -37,10 +37,10 @@
       </el-table-column>
       <el-table-column label="操作" width="240">
         <template v-slot="{ row }">
-          <el-button size="mini" type="primary" round :disabled="row.id === 0" @click="openAssignDialog(row.id)">分配权限
+          <el-button size="mini" type="primary" round :disabled="row.id === 1" @click="openAssignDialog(row.id)">分配权限
           </el-button>
           <el-button size="mini" type="warning" round @click="openEditDialog(row)">编辑</el-button>
-          <el-button size="mini" type="danger" round :disabled="row.id === 0" @click="deleteRoleById(row.id)">删除
+          <el-button size="mini" type="danger" round :disabled="row.id === 1" @click="deleteRoleById(row.id)">删除
           </el-button>
         </template>
       </el-table-column>
@@ -73,7 +73,7 @@
         <el-form-item label="启用状态" prop="enabled">
           <el-switch
             v-model="roleForm.enabled"
-            :disabled="roleForm.id === 0"
+            :disabled="roleForm.id === 1"
             active-value="1"
             inactive-value="0"
             active-color="#13ce66"
@@ -176,7 +176,7 @@ export default {
       // 角色对菜单Ids
       roleMenuIds: [],
       // 菜单分配角色Id
-      assignRoleId: 0,
+      assignRoleId: '',
       // 批量删除选中Ids
       selectedRoleIds: []
     }
@@ -238,7 +238,7 @@ export default {
         }
         this.postRequest('/micro-user/role/saveRole', this.roleForm).then(res => {
           if (res.status !== 'success') {
-            return this.$message.error('保存角色失败！')
+            return this.$message.error(res.message)
           }
           this.pageableSearch()
           this.handleClose()
@@ -300,7 +300,8 @@ export default {
     delete (ids) {
       this.deleteRequest(`/micro-user/role/batchDeleteByIds?ids=${ids}`).then(res => {
         if (res.status !== 'success') {
-          return this.$message.error('批量删除失败！')
+          this.pageableSearch()
+          return this.$message.error(res.message)
         }
         this.pageableSearch()
         this.$message.success('批量删除成功！')
@@ -342,7 +343,7 @@ export default {
     },
     // table多选框是否可选
     selectable (row) {
-      return row.id !== 0
+      return row.id !== 1
     },
     // 修改角色启用状态
     changeRoleEnabled (id, enabled) {
@@ -352,7 +353,8 @@ export default {
       }
       this.putRequest('/micro-user/role/changeRoleEnabled', role).then(res => {
         if (res.status !== 'success') {
-          return this.$message.error('该角色修改启用状态失败！')
+          this.pageableSearch()
+          return this.$message.error(res.message)
         }
         this.pageableSearch()
         this.$message.success('该角色修改启用状态成功！')

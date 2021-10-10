@@ -259,7 +259,7 @@ export default {
           return this.$message.error('请根据提示完善表单信息！')
         }
         const userInfo = JSON.parse(getCookie('userInfo'))
-        this.putRequest('/micro-user/changePassword', {
+        this.putRequest('/micro-user/user/changePassword', {
           id: userInfo.id,
           oldPassword: this.passwordForm.oldPassword,
           newPassword: this.passwordForm.newPassword

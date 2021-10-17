@@ -76,7 +76,6 @@ export default {
       return this.isCollapse ? '65' : '200'
     },
     hasAsideMenu () {
-      console.log(this.menuList)
       for (let i = 0; i < this.menuList.length; i++) {
         if (this.menuList[i].children.length !== 0) {
           return true

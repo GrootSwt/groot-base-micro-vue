@@ -14,6 +14,9 @@
           :expand-on-click-node="false"
           :props="defaultProps"
           @node-click="nodeClick">
+          <!--<template v-slot="{node}">-->
+          <!--  <span>{{ node.title }}</span>-->
+          <!--</template>-->
         </el-tree>
       </el-col>
       <el-col :span="14">
@@ -40,6 +43,16 @@
                 <el-input-number style="width: 100%" v-model="menuForm.sort" :step="1" :precision="0" :min="1"
                                  label="请选择节点序号">
                 </el-input-number>
+              </el-form-item>
+              <el-form-item label="类型" prop="type">
+                <el-select v-model="menuForm.type">
+                  <el-option
+                    v-for="item in menuTypeList"
+                    :key="item.id"
+                    :label="item.text"
+                    :value="item.id">
+                  </el-option>
+                </el-select>
               </el-form-item>
               <el-form-item label="启用" prop="enabled">
                 <el-switch
@@ -76,8 +89,17 @@ export default {
       currentClickMenu: {},
       defaultProps: {
         children: 'children',
-        label: 'title'
+        label (node) {
+          return node.title
+        }
       },
+      // 菜单类型列表
+      menuTypeList: [
+        {
+          id: '1',
+          text: '菜单'
+        }
+      ],
       // 菜单表单
       menuForm: {
         pTitle: '',
@@ -86,7 +108,8 @@ export default {
         location: '',
         icon: '',
         sort: 0,
-        enabled: '1'
+        enabled: '1',
+        type: '1'
       },
       // 菜单表单校验规则
       menuFormRules: {
@@ -174,9 +197,25 @@ export default {
     addSubMenu () {
       if (JSON.stringify(this.currentClickMenu) === '{}') {
         this.menuForm = {}
+        this.menuTypeList = [
+          {
+            id: '1',
+            text: '菜单'
+          }
+        ]
         this.$set(this.menuForm, 'parentId', 0)
       } else {
         this.menuForm = {}
+        this.menuTypeList = [
+          {
+            id: '1',
+            text: '菜单'
+          },
+          {
+            id: '2',
+            text: '权限'
+          }
+        ]
         this.$set(this.menuForm, 'parentId', this.currentClickMenu.id)
         this.$set(this.menuForm, 'pTitle', this.currentClickMenu.title)
       }

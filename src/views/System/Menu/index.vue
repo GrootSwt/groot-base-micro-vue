@@ -14,9 +14,10 @@
           :expand-on-click-node="false"
           :props="defaultProps"
           @node-click="nodeClick">
-          <!--<template v-slot="{node}">-->
-          <!--  <span>{{ node.title }}</span>-->
-          <!--</template>-->
+          <template v-slot="{node}">
+            <span v-if="node.data.type === '1'" :class="node.data.icon">{{ node.label }}</span>
+            <span v-else>{{ node.label }}</span>
+          </template>
         </el-tree>
       </el-col>
       <el-col :span="14">

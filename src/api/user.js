@@ -26,3 +26,8 @@ export function modifyUserInfo (data) {
 export function modifyAvatar (data) {
   return putRequest(ROOT_PATH + 'user/modifyAvatar', data)
 }
+
+// 获取权限列表
+export function getAuthorities (data) {
+  return getRequest(ROOT_PATH + `menu/${data.roleId}/getAuthorities`)
+}

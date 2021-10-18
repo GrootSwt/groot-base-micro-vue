@@ -97,17 +97,18 @@
         :data="menuTree"
         show-checkbox
         node-key="id"
+        :check-strictly="true"
         :default-checked-keys="roleMenuIds"
         default-expand-all
         :expand-on-click-node="false"
         :props="defaultProps">
         <template v-slot="{node}">
-          <span v-if="node.data.type === '1'" :class="node.data.icon">{{node.label}}</span>
-          <span v-else>{{node.label}}</span>
+          <span v-if="node.data.type === '1'" :class="node.data.icon">{{ node.label }}</span>
+          <span v-else>{{ node.label }}</span>
         </template>
       </el-tree>
       <span slot="footer" class="dialog-footer">
-        <el-button size="small" round @click="assignClose">取 消</el-button>
+        <el-button size="small" round @click="assignClose">取消</el-button>
         <el-button size="small" type="primary" round @click="assignSubmit">分配</el-button>
       </span>
     </el-dialog>
@@ -265,6 +266,8 @@ export default {
     },
     // 关闭分配菜单
     assignClose () {
+      this.roleMenuIds = []
+      this.$refs.assignTreeRef.setCheckedNodes([])
       this.assignVisible = false
     },
     // 提交分配菜单
@@ -277,6 +280,7 @@ export default {
           return this.$message.error('角色分配菜单失败！')
         }
         this.roleMenuIds = []
+        this.$refs.assignTreeRef.setCheckedNodes([])
         this.pageableSearch()
         this.assignVisible = false
         this.$message.success('角色分配菜单成功！')

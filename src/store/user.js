@@ -4,7 +4,9 @@ export default {
     // 用户信息
     loginUserInfo: {},
     // 角色信息
-    roleInfo: {}
+    roleInfo: {},
+    // 权限信息
+    authority: []
   },
   getters: {},
   mutations: {
@@ -13,6 +15,9 @@ export default {
     },
     setRoleInfo (state, roleInfo) {
       this.state.roleInfo = roleInfo
+    },
+    setAuthority (state, authority) {
+      this.state.authority = authority
     }
   },
   actions: {}

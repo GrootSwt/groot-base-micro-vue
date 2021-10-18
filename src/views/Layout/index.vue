@@ -53,13 +53,16 @@
 <script>
 import { mapState, mapActions, mapMutations } from 'vuex'
 import LoginInfo from '@/views/Layout/LoginInfo'
-import { getCookie } from '@/utils/cookies'
-import { getMenuTree } from '@/api/user'
+import { getCookie, setCookie } from '@/utils/cookies'
+import { getMenuTree, getAuthorities } from '@/api/user'
 import AsideMenu from '@/views/Layout/AsideMenu'
 
 export default {
   name: 'layout',
-  components: { AsideMenu, LoginInfo },
+  components: {
+    AsideMenu,
+    LoginInfo
+  },
   data () {
     return {
       isCollapse: false
@@ -90,13 +93,19 @@ export default {
     getMenuTree({ roleId: userInfo.roleId }).then(res => {
       if (res.status === 'success') {
         this.setMenuList(res.data)
+        getAuthorities({ roleId: userInfo.roleId }).then(res => {
+          if (res.status === 'success') {
+            this.setAuthority(res.data)
+            setCookie('authority', res.data.join(','))
+          }
+        })
       }
     })
   },
   watch: {},
   methods: {
     ...mapMutations('menu', ['setMenuList']),
-    ...mapMutations('user', ['setLoginUserInfo']),
+    ...mapMutations('user', ['setLoginUserInfo', 'setAuthority']),
     ...mapActions('menu', ['getMenuList']),
     changeCollapse () {
       this.isCollapse = !this.isCollapse

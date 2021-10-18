@@ -59,7 +59,7 @@ export default {
     ...mapState('menu', ['menuList'])
   },
   methods: {
-    ...mapMutations('user', ['setLoginUserInfo', 'setRoleInfo']),
+    ...mapMutations('user', ['setLoginUserInfo', 'setRoleInfo', 'setAuthority']),
     ...mapMutations('menu', ['setMenuList']),
     ...mapActions('menu', ['getMenuList']),
     submit () {
@@ -77,7 +77,10 @@ export default {
           this.setMenuList(res.data.menu)
           // 角色信息
           this.setRoleInfo(res.data.role)
+          // 权限信息
+          this.setAuthority(res.data.authority)
           setCookie('userInfo', res.data.userInfo)
+          setCookie('authority', res.data.authority.join(','))
           setCookie('token', res.data.token)
           this.cancel()
           this.$router.push({ path: this.redirect ? this.redirect : '/' })

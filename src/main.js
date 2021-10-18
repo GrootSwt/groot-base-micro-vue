@@ -18,7 +18,8 @@ import 'e-icon-picker/lib/index.css'
 import 'font-awesome/css/font-awesome.min.css'
 // element-ui 图标库
 import 'element-ui/lib/theme-chalk/icon.css'
-
+// 引入权限判断方法
+import isAuth from './utils/authority'
 // 使用图标选择器
 Vue.use(eIconPicker, {
   FontAwesome: true,
@@ -36,7 +37,7 @@ Vue.prototype.getRequest = getRequest
 Vue.prototype.postRequest = postRequest
 Vue.prototype.putRequest = putRequest
 Vue.prototype.deleteRequest = deleteRequest
-
+Vue.prototype.isAuth = isAuth
 new Vue({
   router,
   store,

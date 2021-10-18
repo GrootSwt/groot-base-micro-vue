@@ -189,8 +189,25 @@ export default {
           if (res.status !== 'success') {
             this.$message.error('获取父菜单失败！')
           }
+          this.menuTypeList = [
+            {
+              id: '1',
+              text: '菜单'
+            },
+            {
+              id: '2',
+              text: '权限'
+            }
+          ]
           this.$set(this.menuForm, 'pTitle', res.data.title)
         })
+      } else {
+        this.menuTypeList = [
+          {
+            id: '1',
+            text: '菜单'
+          }
+        ]
       }
       this.menuForm = this.currentClickMenu
     },
@@ -298,6 +315,12 @@ export default {
       this.$set(this.menuForm, 'sort', 1)
       this.$set(this.menuForm, 'enabled', '1')
       this.currentClickMenu = {}
+      this.menuTypeList = [
+        {
+          id: '1',
+          text: '菜单'
+        }
+      ]
     }
   }
 }

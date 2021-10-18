@@ -101,6 +101,10 @@
         default-expand-all
         :expand-on-click-node="false"
         :props="defaultProps">
+        <template v-slot="{node}">
+          <span v-if="node.data.type === '1'" :class="node.data.icon">{{node.label}}</span>
+          <span v-else>{{node.label}}</span>
+        </template>
       </el-tree>
       <span slot="footer" class="dialog-footer">
         <el-button size="small" round @click="assignClose">取 消</el-button>

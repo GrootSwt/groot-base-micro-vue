@@ -37,6 +37,7 @@ Vue.prototype.getRequest = getRequest
 Vue.prototype.postRequest = postRequest
 Vue.prototype.putRequest = putRequest
 Vue.prototype.deleteRequest = deleteRequest
+// 权限校验
 Vue.prototype.isAuth = isAuth
 new Vue({
   router,

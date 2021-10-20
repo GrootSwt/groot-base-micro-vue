@@ -1,5 +1,5 @@
 import { getCookie } from '@/utils/cookies'
-
+// 权限校验
 export default function (auth) {
   if (!auth) {
     return false

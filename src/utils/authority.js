@@ -6,7 +6,6 @@ export default function (auth) {
   }
   const authority = getCookie('authority')
   const authList = authority.split(',')
-  console.log(authList, auth)
   for (const a of authList) {
     if (a === auth) return true
   }

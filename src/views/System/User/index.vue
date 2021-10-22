@@ -3,10 +3,10 @@
     <!--查询输入框、按钮和新增按钮-->
     <div class="search-add">
       <div>
-        <el-input placeholder="请输入用户名" v-model="searchData.username" size="small" clearable
+        <el-input placeholder="请输入用户名" v-model="searchForm.username" size="small" clearable
                   @clear="pageableSearch" @keyup.enter.native="pageableSearch"
                   style="width: 35%; margin-right: 10px"></el-input>
-        <el-input placeholder="请输入角色名" v-model="searchData.roleName" size="small" clearable
+        <el-input placeholder="请输入角色名" v-model="searchForm.roleName" size="small" clearable
                   @clear="pageableSearch" @keyup.enter.native="pageableSearch"
                   style="width: 35%; margin-right: 10px"></el-input>
         <el-button type="primary" size="small" icon="el-icon-search" round @click="pageableSearch">查询</el-button>
@@ -48,9 +48,11 @@
       <el-table-column label="操作" width="180">
         <template v-slot="{ row }">
           <!--<el-button size="mini" type="primary" round icon="el-icon-edit" @click="openEditDialog(row)">编辑</el-button>-->
-          <el-button size="mini" type="warning" round icon="el-icon-setting" @click="openAuthorizeDialog(row)" :disabled="row.id === 1">授权
+          <el-button size="mini" type="warning" round icon="el-icon-setting" @click="openAuthorizeDialog(row)"
+                     :disabled="row.id === 1">授权
           </el-button>
-          <el-button size="mini" type="danger" round :disabled="row.id === 1" icon="el-icon-delete" @click="deleteRoleById(row.id)">删除
+          <el-button size="mini" type="danger" round :disabled="row.id === 1" icon="el-icon-delete"
+                     @click="deleteRoleById(row.id)">删除
           </el-button>
         </template>
       </el-table-column>
@@ -111,7 +113,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button size="mini" round icon="el-icon-circle-close" @click="addOrEditCancel">关闭</el-button>
+        <el-button size="mini" round icon="el-icon-circle-close" @click="addOrEditCancel">取消</el-button>
         <el-button size="mini" round icon="el-icon-circle-check" type="primary" @click="addOrEditSubmit">确定</el-button>
       </span>
     </el-dialog>
@@ -135,15 +137,22 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-    <el-button size="mini" round @click="closeAuthorizeDialog">取 消</el-button>
-    <el-button size="mini" round type="primary" @click="submitAuthorization">确 定</el-button>
+    <el-button size="mini" round icon="el-icon-circle-close" @click="closeAuthorizeDialog">取 消</el-button>
+    <el-button size="mini" round icon="el-icon-circle-check" type="primary" @click="submitAuthorization">确 定</el-button>
   </span>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { authorization } from '@/api/user'
+import {
+  addOrEditUser,
+  authorization,
+  batchDeleteUser,
+  changeUserEnabled,
+  pageableSearchUser
+} from '@/api/user'
+import { getAllRoleList } from '@/api/role'
 
 export default {
   name: 'User',
@@ -164,7 +173,7 @@ export default {
       }
     }
     return {
-      searchData: {
+      searchForm: {
         username: '',
         roleName: ''
       },
@@ -287,7 +296,7 @@ export default {
   methods: {
     // 角色列表
     getAllRoleList () {
-      this.getRequest('/micro-user/role/getAllRoleList').then(res => {
+      getAllRoleList().then(res => {
         if (res.status !== 'success') {
           return this.$message.error('获取全部角色列表失败！')
         }
@@ -296,14 +305,12 @@ export default {
     },
     // 条件分页查询用户
     pageableSearch () {
-      let url = `/micro-user/user/pageableSearch?page=${this.page - 1}&size=${this.size}`
-      if (this.searchData.username !== '') {
-        url += `&s_username=${this.searchData.username}`
+      const data = {
+        page: this.page,
+        size: this.size,
+        searchForm: this.searchForm
       }
-      if (this.searchData.roleName !== '') {
-        url += `&s_roleName=${this.searchData.roleName}`
-      }
-      this.getRequest(url).then(res => {
+      pageableSearchUser(data).then(res => {
         if (res.status !== 'success') {
           this.$message.error('获取用户列表失败！')
         }
@@ -324,7 +331,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.deleteRequest(`/micro-user/user/batchDelete?idArr=${this.batchDeleteIdArr}`).then(res => {
+        batchDeleteUser(this.batchDeleteIdArr).then(res => {
           if (res.status !== 'success') {
             return this.$message.error('批量删除失败！')
           }
@@ -364,7 +371,7 @@ export default {
         type: 'warning'
       }).then(() => {
         const deleteIds = [userId]
-        this.deleteRequest(`/micro-user/user/batchDelete?idArr=${deleteIds}`).then(res => {
+        batchDeleteUser(deleteIds).then(res => {
           if (res.status !== 'success') {
             return this.$message.error('删除失败！')
           }
@@ -399,7 +406,7 @@ export default {
         if (!valid) {
           return this.$message.error('请根据提示完善用户表单！')
         }
-        this.postRequest('/micro-user/user/addOrEditUser', this.userForm).then(res => {
+        addOrEditUser(this.userForm).then(res => {
           if (res.status !== 'success') {
             if (this.editStatus) {
               return this.$message.error('编辑用户操作失败！')
@@ -423,7 +430,7 @@ export default {
         id,
         enabled
       }
-      this.putRequest('/micro-user/user/changeUserEnabled', user).then(res => {
+      changeUserEnabled(user).then(res => {
         if (res.status !== 'success') {
           return this.$message.error('更改该用户的启用状态失败！')
         }

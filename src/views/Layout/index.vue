@@ -54,7 +54,7 @@
 import { mapState, mapActions, mapMutations } from 'vuex'
 import LoginInfo from '@/views/Layout/LoginInfo'
 import { getCookie, setCookie } from '@/utils/cookies'
-import { getMenuTree, getAuthorities } from '@/api/user'
+import { getMenuTree, getAuthorities } from '@/api/menu'
 import AsideMenu from '@/views/Layout/AsideMenu'
 
 export default {

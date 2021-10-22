@@ -1,5 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import NProgress from 'nprogress'
+import 'nprogress/nprogress.css'
 import Layout from '../views/Layout'
 import Home from '../views/Home'
 import Login from '../views/Login'
@@ -37,6 +39,7 @@ const router = new VueRouter({
   routes
 })
 router.beforeEach((to, from, next) => {
+  NProgress.start()
   document.title = to.meta.title
   if (to.fullPath === '/login') {
     next()
@@ -56,5 +59,9 @@ router.beforeEach((to, from, next) => {
   } else {
     next()
   }
+})
+
+router.afterEach(() => {
+  NProgress.done()
 })
 export default router

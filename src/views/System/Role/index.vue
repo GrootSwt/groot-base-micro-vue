@@ -37,10 +37,13 @@
       </el-table-column>
       <el-table-column label="操作" width="300">
         <template v-slot="{ row }">
-          <el-button size="mini" type="primary" round icon="el-icon-setting" :disabled="row.id === 1" @click="openAssignDialog(row.id)">分配权限
+          <el-button size="mini" type="primary" round icon="el-icon-setting" :disabled="row.id === 1"
+                     @click="openAssignDialog(row.id)">分配权限
           </el-button>
-          <el-button size="mini" type="warning" round icon="el-icon-edit-outline" @click="openEditDialog(row)">编辑</el-button>
-          <el-button size="mini" type="danger" round icon="el-icon-delete" :disabled="row.id === 1" @click="deleteRoleById(row.id)">删除
+          <el-button size="mini" type="warning" round icon="el-icon-edit-outline" @click="openEditDialog(row)">编辑
+          </el-button>
+          <el-button size="mini" type="danger" round icon="el-icon-delete" :disabled="row.id === 1"
+                     @click="deleteRoleById(row.id)">删除
           </el-button>
         </template>
       </el-table-column>
@@ -82,7 +85,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button size="small" round icon="el-icon-circle-close" @click="handleClose">关闭</el-button>
+        <el-button size="small" round icon="el-icon-circle-close" @click="handleClose">取消</el-button>
         <el-button size="small" type="primary" icon="el-icon-circle-check" round @click="handleSubmit">提交</el-button>
       </span>
     </el-dialog>
@@ -102,19 +105,32 @@
         :expand-on-click-node="false"
         :props="defaultProps">
         <template v-slot="{node}">
-          <span v-if="node.data.type === '1'" :class="node.data.icon">{{ node.label }}</span>
-          <span v-else>{{ node.label }}</span>
+          <span v-if="node.data.type === '1'" :class="node.data.icon" style="color: #57a3f3">{{ node.label }}</span>
+          <span v-else style="color: #67c23a">{{ node.label }}</span>
         </template>
       </el-tree>
       <span slot="footer" class="dialog-footer">
-        <el-button size="small" round @click="assignClose">取消</el-button>
-        <el-button size="small" type="primary" round @click="assignSubmit">分配</el-button>
+        <div style="text-align: center; width: 30%;float: left;">
+          <el-tag style="margin-right: 50px">菜单</el-tag>
+          <el-tag type="success">操作</el-tag>
+        </div>
+        <el-button size="small" round icon="el-icon-circle-close" @click="assignClose">取消</el-button>
+        <el-button size="small" type="primary" round icon="el-icon-circle-check" @click="assignSubmit">分配</el-button>
       </span>
     </el-dialog>
   </div>
 </template>
 
 <script>
+import {
+  assignPermissions,
+  batchDeleteByIds, changeRoleEnabled,
+  getMenuIdArrByRoleId,
+  pageableSearchMenu,
+  saveRole
+} from '@/api/role'
+import { getAllMenuForUser } from '@/api/menu'
+
 export default {
   name: 'Role',
   data () {
@@ -195,7 +211,7 @@ export default {
   methods: {
     // 获取菜单节点
     getMenuTree () {
-      this.getRequest('/micro-user/menu/getAllMenuForUser').then(res => {
+      getAllMenuForUser().then(res => {
         if (res.status !== 'success') {
           this.$message.error('获取菜单失败！')
         }
@@ -204,11 +220,12 @@ export default {
     },
     // 条件分页查询角色
     pageableSearch () {
-      let url = `/micro-user/role/pageableSearch?page=${this.page - 1}&size = ${this.size}`
-      if (this.searchName) {
-        url += `&s_name=${this.searchName}`
+      const data = {
+        page: this.page,
+        size: this.size,
+        searchName: this.searchName
       }
-      this.getRequest(url).then(res => {
+      pageableSearchMenu(data).then(res => {
         if (res.status !== 'success') {
           return this.$message.error('获取菜单列表失败！')
         }
@@ -238,7 +255,7 @@ export default {
         if (!valid) {
           return this.$message.error('请根据提示完善表单信息！')
         }
-        this.postRequest('/micro-user/role/saveRole', this.roleForm).then(res => {
+        saveRole(this.roleForm).then(res => {
           if (res.status !== 'success') {
             return this.$message.error(res.message)
           }
@@ -257,6 +274,7 @@ export default {
     openEditDialog (editRole) {
       this.$set(this.roleForm, 'id', editRole.id)
       this.$set(this.roleForm, 'name', editRole.name)
+      this.$set(this.roleForm, 'enabled', editRole.enabled)
       this.$set(this.roleForm, 'description', editRole.description)
       this.isEdit = true
       this.dialogVisible = true
@@ -266,10 +284,14 @@ export default {
       this.$refs.assignTreeRef.setCheckedNodes([])
       this.assignVisible = false
     },
-    // 提交分配菜单
+    // 提交分配权限
     assignSubmit () {
       const checkedKeys = this.$refs.assignTreeRef.getCheckedKeys()
-      this.putRequest(`/micro-user/role/${this.assignRoleId}/assignPermissions`, checkedKeys).then(res => {
+      const data = {
+        assignRoleId: this.assignRoleId,
+        checkedKeys: checkedKeys
+      }
+      assignPermissions(data).then(res => {
         if (res.status !== 'success') {
           return this.$message.error('角色分配菜单失败！')
         }
@@ -282,7 +304,7 @@ export default {
     // 打开分配菜单对话框
     openAssignDialog (id) {
       this.assignRoleId = id
-      this.getRequest(`/micro-user/role/${id}/getMenuIdArrByRoleId`).then(res => {
+      getMenuIdArrByRoleId({ id }).then(res => {
         if (res.status !== 'success') {
           return this.$message.error('获取关联菜单失败！')
         }
@@ -301,7 +323,7 @@ export default {
       this.selectedRoleIds = roleIds
     },
     delete (ids) {
-      this.deleteRequest(`/micro-user/role/batchDeleteByIds?ids=${ids}`).then(res => {
+      batchDeleteByIds({ ids }).then(res => {
         if (res.status !== 'success') {
           this.pageableSearch()
           return this.$message.error(res.message)
@@ -354,7 +376,7 @@ export default {
         id,
         enabled
       }
-      this.putRequest('/micro-user/role/changeRoleEnabled', role).then(res => {
+      changeRoleEnabled(role).then(res => {
         if (res.status !== 'success') {
           this.pageableSearch()
           return this.$message.error(res.message)

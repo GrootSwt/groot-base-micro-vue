@@ -1,8 +1,6 @@
 import axios from 'axios'
 import router from '@/router/index'
 import { Message } from 'element-ui'
-import NProgress from 'nprogress'
-import 'nprogress/nprogress.css'
 import { removeCookie } from '@/utils/cookies'
 
 const instance = axios.create({
@@ -10,14 +8,12 @@ const instance = axios.create({
 })
 //  请求拦截器
 instance.interceptors.request.use(config => {
-  NProgress.start()
   return config
 }, error => {
   return Promise.reject(error)
 })
 //  响应拦截器
 instance.interceptors.response.use(response => {
-  NProgress.done()
   return response
 }, error => {
   if (error.response.status === 401) {

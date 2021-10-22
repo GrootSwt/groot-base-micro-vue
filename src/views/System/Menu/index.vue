@@ -1,11 +1,12 @@
 <template>
   <div>
-    <!--<el-alert title="默认为新增一级菜单；点击菜单后，默认为修改选中菜单；点击删除按钮，删除选中菜单；点击新增子节点按钮，在选中菜单下新增子节点菜单"-->
-    <!--          effect="dark" type="info" show-icon :closable="false" style="margin-bottom: 12px">-->
-    <!--</el-alert>-->
     <el-row :gutter="20">
       <!--菜单树形结构-->
       <el-col :span="10">
+        <div style="text-align: center">
+          <el-tag style="margin-right: 50px">菜单</el-tag>
+          <el-tag type="success">操作</el-tag>
+        </div>
         <el-tree
           ref="menuTreeRef"
           :data="menuTree"
@@ -15,8 +16,8 @@
           :props="defaultProps"
           @node-click="nodeClick">
           <template v-slot="{node}">
-            <span v-if="node.data.type === '1'" :class="node.data.icon">{{ node.label }}</span>
-            <span v-else>{{ node.label }}</span>
+            <span v-if="node.data.type === '1'" :class="node.data.icon" style="color: #57a3f3">{{ node.label }}</span>
+            <span v-else style="color: #67c23a">{{ node.label }}</span>
           </template>
         </el-tree>
       </el-col>
@@ -86,6 +87,7 @@
 </template>
 
 <script>
+import { getAllMenu, deleteMenuByIdArr, saveMenu } from '@/api/menu'
 
 export default {
   name: 'Menu',
@@ -178,9 +180,9 @@ export default {
   methods: {
     // 获取菜单节点
     getMenuTree () {
-      this.getRequest('/micro-user/menu/getAllMenu').then(res => {
+      getAllMenu().then(res => {
         if (res.status !== 'success') {
-          this.$message.error('获取菜单失败！')
+          this.$message.error('获取权限失败！')
         }
         this.menuTree = res.data
         // 设置menuForm的初始化排序
@@ -284,10 +286,10 @@ export default {
     // 删除节点
     deleteNode () {
       if (JSON.stringify(this.currentClickMenu) === '{}') {
-        return this.$message.info('请选择想要删除的菜单！')
+        return this.$message.info('请选择想要删除的权限！')
       }
       if (this.currentClickMenu.children.length > 0) {
-        this.$confirm('<span style="color: red">此菜单下存在子菜单，如果继续执行将删除此菜单和所有子菜单，是否继续执行删除操作？</span>', '提示', {
+        this.$confirm('<span style="color: red">此权限下存在子权限，如果继续执行将删除此权限和所有子权限，是否继续执行删除操作？</span>', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning',
@@ -303,7 +305,7 @@ export default {
           })
         })
       } else {
-        this.$confirm('是否删除此菜单？', '提示', {
+        this.$confirm('是否删除此权限？', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
@@ -321,13 +323,13 @@ export default {
     },
     // 根据id删除菜单
     deleteMenuByIdArr (idArr) {
-      this.deleteRequest(`/micro-user/menu/deleteMenuByIdArr?idArr=${idArr}`).then(res => {
+      deleteMenuByIdArr({ idArr }).then(res => {
         if (res.status !== 'success') {
-          return this.$message.error('删除菜单失败！')
+          return this.$message.error('删除权限失败！')
         }
         this.menuTree = res.data
         this.resetMenu()
-        this.$message.success('删除菜单成功！')
+        this.$message.success('删除权限成功！')
       })
     },
     // 获取当前节点和子节点id
@@ -341,12 +343,12 @@ export default {
         if (!valid) {
           return this.$message.error('根据提示完善表单！')
         }
-        this.postRequest('/micro-user/menu/saveMenu', this.menuForm).then(res => {
+        saveMenu(this.menuForm).then(res => {
           if (res.status !== 'success') {
             return this.$message.error(res.message)
           }
           this.menuTree = res.data
-          this.$message.success('保存菜单成功！')
+          this.$message.success('保存权限成功！')
         })
       })
     },

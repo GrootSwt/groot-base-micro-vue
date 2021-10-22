@@ -3,7 +3,7 @@ export function StrToDate (str, format) {
   const getTwo = (i) => {
     return i < 10 ? '0' : '' + i
   }
-  format.replace(/yyyy|MM|dd|HH|mm|ss/g, (i) => {
+  return format.replace(/yyyy|MM|dd|HH|mm|ss/g, (i) => {
     switch (i) {
       case 'yyyy':
         return getTwo(date.getFullYear())

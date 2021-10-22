@@ -6,7 +6,6 @@ export default {
   component: Home,
   meta: {
     title: '主页',
-    breadcrumb: ['主页'],
     auth: true
   }
 }

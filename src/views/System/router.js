@@ -18,8 +18,8 @@ export default {
       name: 'Menu',
       component: Menu,
       meta: {
-        title: '菜单管理',
-        breadcrumb: ['主页', '系统管理', '菜单管理'],
+        title: '权限管理',
+        breadcrumb: ['主页', '系统管理', '权限管理'],
         auth: true
       }
     },

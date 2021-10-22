@@ -1,14 +1,14 @@
 <template>
   <div>
-    <el-alert title="默认为新增一级菜单；点击菜单后，默认为修改选中菜单；点击删除按钮，删除选中菜单；点击新增子节点按钮，在选中菜单下新增子节点菜单"
-              effect="dark" type="info" show-icon :closable="false" style="margin-bottom: 12px">
-    </el-alert>
+    <!--<el-alert title="默认为新增一级菜单；点击菜单后，默认为修改选中菜单；点击删除按钮，删除选中菜单；点击新增子节点按钮，在选中菜单下新增子节点菜单"-->
+    <!--          effect="dark" type="info" show-icon :closable="false" style="margin-bottom: 12px">-->
+    <!--</el-alert>-->
     <el-row :gutter="20">
       <!--菜单树形结构-->
       <el-col :span="10">
         <el-tree
+          ref="menuTreeRef"
           :data="menuTree"
-          show-checkbox
           node-key="id"
           default-expand-all
           :expand-on-click-node="false"
@@ -24,26 +24,19 @@
         <el-row>
           <el-col :span="20">
             <div style="text-align: center; margin-bottom: 12px">
-              <el-button v-show="this.isAuth('/system/menu/add')" type="primary" size="small" round icon="el-icon-plus" @click="addSubMenu">新增子节点</el-button>
-              <el-button type="danger" size="small" round icon="el-icon-delete" @click="deleteNode">删除该节点</el-button>
+              <el-button type="primary" size="small" round icon="el-icon-plus"
+                         @click="addMenu">新增同级节点
+              </el-button>
+              <el-button v-show="this.isAuth('/system/menu/add')" type="primary" size="small" round icon="el-icon-plus"
+                         @click="addSubMenu">新增子节点
+              </el-button>
+              <el-button v-show="this.isAuth('/system/menu/delete')" type="danger" size="small" round
+                         icon="el-icon-delete" @click="deleteNode">删除该节点
+              </el-button>
             </div>
             <el-form :model="menuForm" :rules="menuFormRules" ref="menuFormRef" label-width="80px">
               <el-form-item label="父菜单" prop="pTitle">
                 <el-input v-model="menuForm.pTitle" disabled></el-input>
-              </el-form-item>
-              <el-form-item label="名称" prop="title">
-                <el-input v-model="menuForm.title"></el-input>
-              </el-form-item>
-              <el-form-item label="路径" prop="location">
-                <el-input v-model="menuForm.location"></el-input>
-              </el-form-item>
-              <el-form-item label="图标" prop="icon">
-                <e-icon-picker v-model="menuForm.icon"/>
-              </el-form-item>
-              <el-form-item label="排序" prop="sort">
-                <el-input-number style="width: 100%" v-model="menuForm.sort" :step="1" :precision="0" :min="1"
-                                 label="请选择节点序号">
-                </el-input-number>
               </el-form-item>
               <el-form-item label="类型" prop="type">
                 <el-select v-model="menuForm.type">
@@ -54,6 +47,20 @@
                     :value="item.id">
                   </el-option>
                 </el-select>
+              </el-form-item>
+              <el-form-item label="名称" prop="title">
+                <el-input v-model="menuForm.title"></el-input>
+              </el-form-item>
+              <el-form-item label="路径" prop="location">
+                <el-input v-model="menuForm.location"></el-input>
+              </el-form-item>
+              <el-form-item v-if="menuForm.type==='1'" label="图标" :prop="menuForm.type === '1' ? 'icon': ''">
+                <e-icon-picker v-model="menuForm.icon"/>
+              </el-form-item>
+              <el-form-item label="排序" prop="sort">
+                <el-input-number style="width: 100%" v-model="menuForm.sort" :step="1" :precision="0" :min="1"
+                                 label="请选择节点序号">
+                </el-input-number>
               </el-form-item>
               <el-form-item label="启用" prop="enabled">
                 <el-switch
@@ -176,6 +183,8 @@ export default {
           this.$message.error('获取菜单失败！')
         }
         this.menuTree = res.data
+        // 设置menuForm的初始化排序
+        this.menuForm.sort = this.menuTree.length + 1
       })
     },
     // 获取点击节点
@@ -185,22 +194,18 @@ export default {
       // 拷贝选中节点
       this.currentClickMenu = JSON.parse(JSON.stringify(menu))
       if (this.currentClickMenu.parentId !== 0) {
-        this.getRequest(`/micro-user/menu/${this.currentClickMenu.parentId}/getMenuByMenuId`).then(res => {
-          if (res.status !== 'success') {
-            this.$message.error('获取父菜单失败！')
+        const parentMenuNode = this.$refs.menuTreeRef.getNode(this.currentClickMenu.parentId)
+        this.$set(this.currentClickMenu, 'pTitle', parentMenuNode.label)
+        this.menuTypeList = [
+          {
+            id: '1',
+            text: '菜单'
+          },
+          {
+            id: '2',
+            text: '操作'
           }
-          this.menuTypeList = [
-            {
-              id: '1',
-              text: '菜单'
-            },
-            {
-              id: '2',
-              text: '权限'
-            }
-          ]
-          this.$set(this.menuForm, 'pTitle', res.data.title)
-        })
+        ]
       } else {
         this.menuTypeList = [
           {
@@ -210,6 +215,38 @@ export default {
         ]
       }
       this.menuForm = this.currentClickMenu
+    },
+    // 新增同级节点
+    addMenu () {
+      if (JSON.stringify(this.currentClickMenu) === '{}' || this.currentClickMenu.parentId === 0) {
+        this.menuForm = {}
+        this.menuTypeList = [
+          {
+            id: '1',
+            text: '菜单'
+          }
+        ]
+        this.$set(this.menuForm, 'parentId', 0)
+        this.$set(this.menuForm, 'type', '1')
+      } else {
+        this.menuForm = {}
+        this.menuTypeList = [
+          {
+            id: '1',
+            text: '菜单'
+          },
+          {
+            id: '2',
+            text: '操作'
+          }
+        ]
+        this.$set(this.menuForm, 'parentId', this.currentClickMenu.parentId)
+        this.$set(this.menuForm, 'pTitle', this.currentClickMenu.pTitle)
+        this.$set(this.menuForm, 'type', this.currentClickMenu.type)
+      }
+      const parentMenuNode = this.$refs.menuTreeRef.getNode(this.currentClickMenu.parentId)
+      this.$set(this.menuForm, 'sort', parentMenuNode ? parentMenuNode.childNodes.length + 1 : this.menuTree.length + 1)
+      this.$set(this.menuForm, 'enabled', '1')
     },
     // 新增子节点
     addSubMenu () {
@@ -223,6 +260,9 @@ export default {
         ]
         this.$set(this.menuForm, 'parentId', 0)
       } else {
+        if (this.currentClickMenu.type === '2') {
+          return this.$message.info('操作权限不可增加子节点！')
+        }
         this.menuForm = {}
         this.menuTypeList = [
           {
@@ -231,25 +271,27 @@ export default {
           },
           {
             id: '2',
-            text: '权限'
+            text: '操作'
           }
         ]
         this.$set(this.menuForm, 'parentId', this.currentClickMenu.id)
         this.$set(this.menuForm, 'pTitle', this.currentClickMenu.title)
       }
-      this.$set(this.menuForm, 'sort', 1)
+      this.$set(this.menuForm, 'sort', this.currentClickMenu.children ? this.currentClickMenu.children.length + 1 : this.menuTree.length + 1)
+      this.$set(this.menuForm, 'type', '1')
       this.$set(this.menuForm, 'enabled', '1')
     },
     // 删除节点
     deleteNode () {
       if (JSON.stringify(this.currentClickMenu) === '{}') {
-        return this.$message.error('请选择想要删除的菜单！')
+        return this.$message.info('请选择想要删除的菜单！')
       }
       if (this.currentClickMenu.children.length > 0) {
-        this.$confirm('此菜单下存在子菜单，是否继续执行删除操作？', '提示', {
+        this.$confirm('<span style="color: red">此菜单下存在子菜单，如果继续执行将删除此菜单和所有子菜单，是否继续执行删除操作？</span>', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
-          type: 'warning'
+          type: 'warning',
+          dangerouslyUseHTMLString: true
         }).then(() => {
           const idArr = []
           this.getIds(idArr, this.currentClickMenu)
@@ -301,7 +343,7 @@ export default {
         }
         this.postRequest('/micro-user/menu/saveMenu', this.menuForm).then(res => {
           if (res.status !== 'success') {
-            return this.$message.error('保存菜单失败！')
+            return this.$message.error(res.message)
           }
           this.menuTree = res.data
           this.$message.success('保存菜单成功！')

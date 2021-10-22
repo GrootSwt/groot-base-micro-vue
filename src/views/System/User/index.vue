@@ -12,7 +12,7 @@
         <el-button type="primary" size="small" icon="el-icon-search" round @click="pageableSearch">查询</el-button>
       </div>
       <div>
-        <!--<el-button type="success" size="small" icon="el-icon-plus" round @click="openAddDialog">新增</el-button>-->
+        <el-button type="success" size="small" icon="el-icon-plus" round @click="openAddDialog">新增</el-button>
         <el-button type="danger" size="small" icon="el-icon-delete" round @click="batchDelete">批量删除</el-button>
       </div>
     </div>
@@ -47,10 +47,10 @@
       </el-table-column>
       <el-table-column label="操作" width="180">
         <template v-slot="{ row }">
-          <!--<el-button size="mini" type="warning" round @click="openEditDialog(row)">编辑</el-button>-->
-          <el-button size="mini" type="warning" round @click="openAuthorizeDialog(row)" :disabled="row.id === 1">授权
+          <!--<el-button size="mini" type="primary" round icon="el-icon-edit" @click="openEditDialog(row)">编辑</el-button>-->
+          <el-button size="mini" type="warning" round icon="el-icon-setting" @click="openAuthorizeDialog(row)" :disabled="row.id === 1">授权
           </el-button>
-          <el-button size="mini" type="danger" round :disabled="row.id === 1" @click="deleteRoleById(row.id)">删除
+          <el-button size="mini" type="danger" round :disabled="row.id === 1" icon="el-icon-delete" @click="deleteRoleById(row.id)">删除
           </el-button>
         </template>
       </el-table-column>
@@ -111,8 +111,8 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button size="mini" round @click="addOrEditCancel">取 消</el-button>
-        <el-button size="mini" round type="primary" @click="addOrEditSubmit">确 定</el-button>
+        <el-button size="mini" round icon="el-icon-circle-close" @click="addOrEditCancel">关闭</el-button>
+        <el-button size="mini" round icon="el-icon-circle-check" type="primary" @click="addOrEditSubmit">确定</el-button>
       </span>
     </el-dialog>
     <!--授权对话框-->
@@ -182,7 +182,7 @@ export default {
         username: '',
         phoneNumber: '',
         email: '',
-        roleId: 0,
+        roleId: 1,
         enabled: '1'
       },
       userFormRules: {

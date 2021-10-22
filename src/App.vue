@@ -21,4 +21,9 @@ body,
   width: 100%;
   margin: 0;
 }
+
+#nprogress .bar {
+  background-color: #67c23a !important;
+  height: 1px !important;
+}
 </style>

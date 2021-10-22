@@ -35,12 +35,12 @@
           </el-switch>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="240">
+      <el-table-column label="操作" width="300">
         <template v-slot="{ row }">
-          <el-button size="mini" type="primary" round :disabled="row.id === 1" @click="openAssignDialog(row.id)">分配权限
+          <el-button size="mini" type="primary" round icon="el-icon-setting" :disabled="row.id === 1" @click="openAssignDialog(row.id)">分配权限
           </el-button>
-          <el-button size="mini" type="warning" round @click="openEditDialog(row)">编辑</el-button>
-          <el-button size="mini" type="danger" round :disabled="row.id === 1" @click="deleteRoleById(row.id)">删除
+          <el-button size="mini" type="warning" round icon="el-icon-edit-outline" @click="openEditDialog(row)">编辑</el-button>
+          <el-button size="mini" type="danger" round icon="el-icon-delete" :disabled="row.id === 1" @click="deleteRoleById(row.id)">删除
           </el-button>
         </template>
       </el-table-column>
@@ -82,8 +82,8 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button size="small" round @click="handleClose">取 消</el-button>
-        <el-button size="small" type="primary" round @click="handleSubmit">提 交</el-button>
+        <el-button size="small" round icon="el-icon-circle-close" @click="handleClose">关闭</el-button>
+        <el-button size="small" type="primary" icon="el-icon-circle-check" round @click="handleSubmit">提交</el-button>
       </span>
     </el-dialog>
     <!--权限分配-->
@@ -96,9 +96,8 @@
         ref="assignTreeRef"
         :data="menuTree"
         show-checkbox
+        check-strictly
         node-key="id"
-        :check-strictly="true"
-        :default-checked-keys="roleMenuIds"
         default-expand-all
         :expand-on-click-node="false"
         :props="defaultProps">
@@ -178,8 +177,6 @@ export default {
       },
       // 菜单树
       menuTree: [],
-      // 角色对菜单Ids
-      roleMenuIds: [],
       // 菜单分配角色Id
       assignRoleId: '',
       // 批量删除选中Ids
@@ -266,20 +263,16 @@ export default {
     },
     // 关闭分配菜单
     assignClose () {
-      this.roleMenuIds = []
       this.$refs.assignTreeRef.setCheckedNodes([])
       this.assignVisible = false
     },
     // 提交分配菜单
     assignSubmit () {
-      const halfCheckedKeys = this.$refs.assignTreeRef.getHalfCheckedKeys()
       const checkedKeys = this.$refs.assignTreeRef.getCheckedKeys()
-      const allMenuIds = [...halfCheckedKeys, ...checkedKeys]
-      this.putRequest(`/micro-user/role/${this.assignRoleId}/assignPermissions`, allMenuIds).then(res => {
+      this.putRequest(`/micro-user/role/${this.assignRoleId}/assignPermissions`, checkedKeys).then(res => {
         if (res.status !== 'success') {
           return this.$message.error('角色分配菜单失败！')
         }
-        this.roleMenuIds = []
         this.$refs.assignTreeRef.setCheckedNodes([])
         this.pageableSearch()
         this.assignVisible = false
@@ -293,8 +286,10 @@ export default {
         if (res.status !== 'success') {
           return this.$message.error('获取关联菜单失败！')
         }
-        this.roleMenuIds = res.data
         this.assignVisible = true
+        this.$nextTick(() => {
+          this.$refs.assignTreeRef.setCheckedKeys(res.data)
+        })
       })
     },
     // 角色表单批量选择数据

@@ -16,19 +16,24 @@ instance.interceptors.request.use(config => {
 instance.interceptors.response.use(response => {
   return response
 }, error => {
+  responseErrorHandler(error)
+  return Promise.reject(error)
+})
+
+// 处理异常信息
+function responseErrorHandler (error) {
   if (error.response.status === 401) {
     Message.error('登录信息已过期，请重新登录！')
-    removeCookie('username')
     removeCookie('token')
     router.push({ path: '/login' })
   } else if (error.response.status === 403) {
     Message.error('登录信息已过期，请重新登录！')
-    removeCookie('username')
     removeCookie('token')
     router.push({ path: '/login' })
+  } else if (error.response.status === 404) {
+    Message.error('请求资源的路径或方式不正确！')
   }
-  return Promise.reject(error)
-})
+}
 
 // get请求，可以将参数放在路径，也可以将参数放入data中
 export function getRequest (url, data = {}) {

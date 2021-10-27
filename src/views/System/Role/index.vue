@@ -246,7 +246,6 @@ export default {
     // 取消角色编辑或新增
     handleClose () {
       this.$refs.roleFormRef.resetFields()
-      this.roleForm = {}
       this.dialogVisible = false
     },
     // 提交角色编辑或新增
@@ -268,6 +267,9 @@ export default {
     // 打开新增角色对话框
     openAddDialog () {
       this.isEdit = false
+      this.roleForm = {
+        enabled: '1'
+      }
       this.dialogVisible = true
     },
     // 打开编辑角色对话框

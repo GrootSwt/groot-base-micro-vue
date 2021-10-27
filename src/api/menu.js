@@ -4,7 +4,7 @@ const ROOT_PATH = '/micro-user/'
 
 // 根据角色id获取权限的菜单、操作树
 export function getMenuTree (data) {
-  return getRequest(ROOT_PATH + `menu/getMenuListByRoleId/${data.roleId}`)
+  return getRequest(ROOT_PATH + `menu/${data.roleId}/getMenuListByRoleId`)
 }
 
 // 获取权限列表

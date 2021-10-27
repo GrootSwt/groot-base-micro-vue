@@ -6,10 +6,12 @@
                class="el-menu-vertical">
         <template v-for="menu in menuList">
           <el-submenu :index="menu.location" v-if="menu.children.length > 0" :key="menu.id">
+            <!--多级菜单中的一级菜单-->
             <template slot="title">
               <i :class="menu.icon"></i>
               <span slot="title">{{ menu.title }}</span>
             </template>
+            <!--除一级菜单外的其他级菜单-->
             <el-menu-item-group>
               <template v-for="subMenu in menu.children">
                 <aside-menu :menu="subMenu" :key="subMenu.id"></aside-menu>
@@ -53,8 +55,7 @@
 <script>
 import { mapState, mapActions, mapMutations } from 'vuex'
 import LoginInfo from '@/views/Layout/LoginInfo'
-import { getCookie, setCookie } from '@/utils/cookies'
-import { getMenuTree, getAuthorities } from '@/api/menu'
+import { getCookie } from '@/utils/cookies'
 import AsideMenu from '@/views/Layout/AsideMenu'
 
 export default {
@@ -88,28 +89,20 @@ export default {
     }
   },
   created () {
+    // 初始化或者刷新时，从cookie中取出用户信息，然后存放到vuex中
+    // 然后获取菜单和操作权限
     const userInfo = JSON.parse(getCookie('userInfo'))
     this.setLoginUserInfo(userInfo)
-    getMenuTree({ roleId: userInfo.roleId }).then(res => {
-      if (res.status === 'success') {
-        this.setMenuList(res.data)
-        getAuthorities({ roleId: userInfo.roleId }).then(res => {
-          if (res.status === 'success') {
-            this.setAuthority(res.data)
-            setCookie('authority', res.data.join(','))
-          }
-        })
-      }
-    })
+    this.getMenuList()
   },
-  watch: {},
   methods: {
     ...mapMutations('menu', ['setMenuList']),
-    ...mapMutations('user', ['setLoginUserInfo', 'setAuthority']),
+    ...mapMutations('user', ['setLoginUserInfo']),
     ...mapActions('menu', ['getMenuList']),
     changeCollapse () {
       this.isCollapse = !this.isCollapse
     },
+    // 点击头部菜单,关闭所有侧边栏菜单
     closeAsideMenu (menu) {
       if (menu.children.length === 0) {
         const menuArr = this.menuList.filter(item => item.children.length > 0)

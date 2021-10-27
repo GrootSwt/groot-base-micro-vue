@@ -239,8 +239,7 @@ export default {
       }).then(() => {
         removeCookie('token')
         removeCookie('userInfo')
-        removeCookie('roleInfo')
-        removeCookie('menuInfo')
+        removeCookie('authority')
         this.$router.push('/login')
       }).catch(() => {
         this.$message({

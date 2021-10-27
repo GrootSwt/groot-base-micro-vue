@@ -22,16 +22,23 @@ instance.interceptors.response.use(response => {
 
 // 处理异常信息
 function responseErrorHandler (error) {
-  if (error.response.status === 401) {
-    Message.error('登录信息已过期，请重新登录！')
-    removeCookie('token')
-    router.push({ path: '/login' })
-  } else if (error.response.status === 403) {
-    Message.error('登录信息已过期，请重新登录！')
-    removeCookie('token')
-    router.push({ path: '/login' })
-  } else if (error.response.status === 404) {
-    Message.error('请求资源的路径或方式不正确！')
+  switch (error.response.status) {
+    case 401:
+      Message.error('登录信息已过期，请重新登录！')
+      removeCookie('token')
+      router.push({ path: '/login' })
+      break
+    case 403:
+      Message.error('登录信息已过期，请重新登录！')
+      removeCookie('token')
+      router.push({ path: '/login' })
+      break
+    case 404:
+      Message.error('请求资源的路径或方式不正确！')
+      break
+    case 503:
+      Message.error('服务不可用！')
+      break
   }
 }
 

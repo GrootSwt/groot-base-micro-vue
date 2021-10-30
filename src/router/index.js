@@ -15,6 +15,7 @@ businessRouterArr.keys().forEach(key => {
   businessRouter = businessRouter.concat(businessRouterArr(key).default)
 })
 const routes = [
+  // 共用布局
   {
     path: '/',
     name: 'Layout',
@@ -24,6 +25,7 @@ const routes = [
       ...businessRouter
     ]
   },
+  // 非共用布局
   {
     path: '/login',
     name: 'Login',

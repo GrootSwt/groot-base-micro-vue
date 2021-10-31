@@ -298,7 +298,7 @@ export default {
     getAllRoleList () {
       getAllRoleList().then(res => {
         if (res.status !== 'success') {
-          return this.$message.error('获取全部角色列表失败！')
+          return this.$message.error(res.message)
         }
         this.roleList = res.data
       })
@@ -312,7 +312,7 @@ export default {
       }
       pageableSearchUser(data).then(res => {
         if (res.status !== 'success') {
-          this.$message.error('获取用户列表失败！')
+          this.$message.error(res.message)
         }
         this.userList = res.data.content
         this.total = res.data.totalElements
@@ -333,7 +333,7 @@ export default {
       }).then(() => {
         batchDeleteUser(this.batchDeleteIdArr).then(res => {
           if (res.status !== 'success') {
-            return this.$message.error('批量删除失败！')
+            return this.$message.error(res.message)
           }
           this.pageableSearch()
           this.$message.success('批量删除成功！')
@@ -373,7 +373,7 @@ export default {
         const deleteIds = [userId]
         batchDeleteUser(deleteIds).then(res => {
           if (res.status !== 'success') {
-            return this.$message.error('删除失败！')
+            return this.$message.error(res.message)
           }
           this.pageableSearch()
           this.$message.success('删除成功！')
@@ -409,9 +409,9 @@ export default {
         addOrEditUser(this.userForm).then(res => {
           if (res.status !== 'success') {
             if (this.editStatus) {
-              return this.$message.error('编辑用户操作失败！')
+              return this.$message.error(res.message)
             } else {
-              return this.$message.error('新增用户失败！')
+              return this.$message.error(res.message)
             }
           }
           this.pageableSearch()
@@ -432,7 +432,7 @@ export default {
       }
       changeUserEnabled(user).then(res => {
         if (res.status !== 'success') {
-          return this.$message.error('更改该用户的启用状态失败！')
+          return this.$message.error(res.message)
         }
         this.pageableSearch()
         this.$message.success('更改该用户的启用状态成功！')

@@ -182,7 +182,7 @@ export default {
     getMenuTree () {
       getAllMenu().then(res => {
         if (res.status !== 'success') {
-          this.$message.error('获取权限失败！')
+          this.$message.error(res.message)
         }
         this.menuTree = res.data
         // 设置menuForm的初始化排序
@@ -325,7 +325,7 @@ export default {
     deleteMenuByIdArr (idArr) {
       deleteMenuByIdArr({ idArr }).then(res => {
         if (res.status !== 'success') {
-          return this.$message.error('删除权限失败！')
+          return this.$message.error(res.message)
         }
         this.menuTree = res.data
         this.resetMenu()

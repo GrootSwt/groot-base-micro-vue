@@ -213,7 +213,7 @@ export default {
     getMenuTree () {
       getAllMenuForUser().then(res => {
         if (res.status !== 'success') {
-          this.$message.error('获取菜单失败！')
+          this.$message.error(res.message)
         }
         this.menuTree = res.data
       })
@@ -227,7 +227,7 @@ export default {
       }
       pageableSearchMenu(data).then(res => {
         if (res.status !== 'success') {
-          return this.$message.error('获取菜单列表失败！')
+          return this.$message.error(res.message)
         }
         this.roleList = res.data.content
         this.total = res.data.totalElements
@@ -295,7 +295,7 @@ export default {
       }
       assignPermissions(data).then(res => {
         if (res.status !== 'success') {
-          return this.$message.error('角色分配菜单失败！')
+          return this.$message.error(res.message)
         }
         this.$refs.assignTreeRef.setCheckedNodes([])
         this.pageableSearch()
@@ -308,7 +308,7 @@ export default {
       this.assignRoleId = id
       getMenuIdArrByRoleId({ id }).then(res => {
         if (res.status !== 'success') {
-          return this.$message.error('获取关联菜单失败！')
+          return this.$message.error(res.message)
         }
         this.assignVisible = true
         this.$nextTick(() => {

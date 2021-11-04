@@ -64,26 +64,46 @@
     <el-dialog
       :title="dialogTitle"
       :visible.sync="dialogVisible"
-      width="30%"
+      width="50%"
       :before-close="handleClose">
-      <el-form :model="roleForm" :rules="roleFormRules" ref="roleFormRef" label-width="100px">
-        <el-form-item label="角色名称" prop="name">
-          <el-input size="small" v-model="roleForm.name"></el-input>
-        </el-form-item>
-        <el-form-item label="角色描述" prop="description">
-          <el-input size="small" v-model="roleForm.description"></el-input>
-        </el-form-item>
-        <el-form-item label="启用状态" prop="enabled">
-          <el-switch
-            v-model="roleForm.enabled"
-            :disabled="roleForm.id === 1"
-            active-value="1"
-            inactive-value="0"
-            active-color="#13ce66"
-            inactive-color="#ff4949">
-          </el-switch>
-        </el-form-item>
-      </el-form>
+      <el-row :gutter="20">
+        <el-col :span="12">
+          <el-form :model="roleForm" :rules="roleFormRules" ref="roleFormRef" label-width="100px">
+            <el-form-item label="角色名称" prop="name">
+              <el-input size="small" v-model="roleForm.name"></el-input>
+            </el-form-item>
+            <el-form-item label="角色描述" prop="description">
+              <el-input size="small" v-model="roleForm.description"></el-input>
+            </el-form-item>
+            <el-form-item label="启用状态" prop="enabled">
+              <el-switch
+                v-model="roleForm.enabled"
+                :disabled="roleForm.id === 1"
+                active-value="1"
+                inactive-value="0"
+                active-color="#13ce66"
+                inactive-color="#ff4949">
+              </el-switch>
+            </el-form-item>
+          </el-form>
+        </el-col>
+        <el-col :span="12">
+          <el-tree
+            ref="addOrEditAssignTreeRef"
+            :data="menuTree"
+            show-checkbox
+            check-strictly
+            node-key="id"
+            default-expand-all
+            :expand-on-click-node="false"
+            :props="defaultProps">
+            <template v-slot="{node}">
+              <span v-if="node.data.type === '1'" :class="node.data.icon" style="color: #57a3f3">{{ node.label }}</span>
+              <span v-else style="color: #67c23a">{{ node.label }}</span>
+            </template>
+          </el-tree>
+        </el-col>
+      </el-row>
       <span slot="footer" class="dialog-footer">
         <el-button size="small" round icon="el-icon-circle-close" @click="handleClose">取消</el-button>
         <el-button size="small" type="primary" icon="el-icon-circle-check" round @click="handleSubmit">提交</el-button>
@@ -246,6 +266,7 @@ export default {
     // 取消角色编辑或新增
     handleClose () {
       this.$refs.roleFormRef.resetFields()
+      this.$refs.addOrEditAssignTreeRef.setCheckedKeys([])
       this.dialogVisible = false
     },
     // 提交角色编辑或新增
@@ -254,7 +275,12 @@ export default {
         if (!valid) {
           return this.$message.error('请根据提示完善表单信息！')
         }
-        saveRole(this.roleForm).then(res => {
+        const menuIdArr = this.$refs.addOrEditAssignTreeRef.getCheckedKeys()
+        const roleData = {
+          ...this.roleForm,
+          menuIdArr: menuIdArr
+        }
+        saveRole(roleData).then(res => {
           if (res.status !== 'success') {
             return this.$message.error(res.message)
           }
@@ -274,12 +300,20 @@ export default {
     },
     // 打开编辑角色对话框
     openEditDialog (editRole) {
-      this.$set(this.roleForm, 'id', editRole.id)
-      this.$set(this.roleForm, 'name', editRole.name)
-      this.$set(this.roleForm, 'enabled', editRole.enabled)
-      this.$set(this.roleForm, 'description', editRole.description)
-      this.isEdit = true
-      this.dialogVisible = true
+      getMenuIdArrByRoleId({ id: editRole.id }).then(res => {
+        if (res.status !== 'success') {
+          return this.$message.error(res.message)
+        }
+        this.$set(this.roleForm, 'id', editRole.id)
+        this.$set(this.roleForm, 'name', editRole.name)
+        this.$set(this.roleForm, 'enabled', editRole.enabled)
+        this.$set(this.roleForm, 'description', editRole.description)
+        this.isEdit = true
+        this.$nextTick(() => {
+          this.$refs.addOrEditAssignTreeRef.setCheckedKeys(res.data)
+        })
+        this.dialogVisible = true
+      })
     },
     // 关闭分配菜单
     assignClose () {

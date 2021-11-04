@@ -41,8 +41,8 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="cancel">取 消</el-button>
-        <el-button type="primary" @click="submit">提 交</el-button>
+        <el-button size="mini" round icon="el-icon-circle-close" @click="cancel">取 消</el-button>
+        <el-button size="mini" round icon="el-icon-circle-check" type="primary" @click="submit">提 交</el-button>
       </span>
     </el-dialog>
     <!--编辑用户信息对话框-->
@@ -63,8 +63,8 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button size="mini" round @click="closeModifyUserInfoDialog">取 消</el-button>
-        <el-button size="mini" round type="primary" @click="submitModifyUserInfo">确 定</el-button>
+        <el-button size="mini" round icon="el-icon-circle-close" @click="closeModifyUserInfoDialog">取 消</el-button>
+        <el-button size="mini" round icon="el-icon-circle-check" type="primary" @click="submitModifyUserInfo">确 定</el-button>
       </span>
     </el-dialog>
     <!--设置头像对话框-->
@@ -96,8 +96,8 @@
         </p>
       </div>
       <span slot="footer" class="dialog-footer">
-    <el-button size="mini" round @click="closeModifyAvatarDialog(false)">取 消</el-button>
-    <el-button size="mini" round type="primary" @click="submitUploadAvatar">确 定</el-button>
+    <el-button size="mini" round icon="el-icon-circle-close" @click="closeModifyAvatarDialog(false)">取 消</el-button>
+    <el-button size="mini" round icon="el-icon-circle-check" type="primary" @click="submitUploadAvatar">确 定</el-button>
   </span>
     </el-dialog>
   </div>

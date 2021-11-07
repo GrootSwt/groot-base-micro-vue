@@ -1,21 +1,23 @@
 <template>
-  <div class="login-container">
-    <el-form :model="loginFormData" :rules="loginFormRule" ref="loginFormRef" class="login-form">
-      <el-form-item prop="loginName">
-        <el-input type="text" v-model="loginFormData.loginName" placeholder="请输入账号"
-                  prefix-icon="el-icon-user">
-        </el-input>
-      </el-form-item>
-      <el-form-item prop="password">
-        <el-input type="password" v-model="loginFormData.password" placeholder="请输入密码"
-                  @keyup.enter.native="submit" prefix-icon="el-icon-lock">
-        </el-input>
-      </el-form-item>
-      <div class="form-buttons">
-        <el-button type="primary" @click="submit">登录</el-button>
-        <el-button @click="cancel">清空</el-button>
-      </div>
-    </el-form>
+  <div class="login-box">
+    <div class="login-container">
+      <el-form :model="loginFormData" :rules="loginFormRule" ref="loginFormRef" class="login-form">
+        <el-form-item prop="loginName">
+          <el-input type="text" v-model="loginFormData.loginName" placeholder="请输入账号"
+                    prefix-icon="el-icon-user">
+          </el-input>
+        </el-form-item>
+        <el-form-item prop="password">
+          <el-input type="password" v-model="loginFormData.password" placeholder="请输入密码"
+                    @keyup.enter.native="submit" prefix-icon="el-icon-lock">
+          </el-input>
+        </el-form-item>
+        <div class="form-buttons">
+          <el-button type="primary" @click="submit">登录</el-button>
+          <el-button @click="cancel">清空</el-button>
+        </div>
+      </el-form>
+    </div>
   </div>
 </template>
 
@@ -83,6 +85,12 @@ export default {
 </script>
 
 <style scoped>
+.login-box {
+  width: 100vw;
+  height: 100vh;
+  background-image: linear-gradient(to bottom right, #4dcfd1, #9708c4);
+}
+
 .login-container {
   position: relative;
   left: 50%;
@@ -90,8 +98,16 @@ export default {
   transform: translate(-50%, -50%);
   width: 30%;
   height: 40%;
-  border: 1px solid #515a6e;
   min-height: 200px;
+  background-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 3px 3px 6px 3px rgba(0, 0, 0, 0.3);
+  border-radius: 5px;
+}
+
+.login-container:before {
+  content: '';
+  z-index: -1;
+  filter: blur(20px);
 }
 
 .login-form {

@@ -1,7 +1,7 @@
 import Menu from './Menu'
 import Role from './Role'
 import User from './User'
-
+import Log from './Log'
 export default {
   path: 'system',
   name: 'System',
@@ -40,6 +40,16 @@ export default {
       meta: {
         title: '用户管理',
         breadcrumb: ['主页', '系统管理', '用户管理'],
+        auth: true
+      }
+    },
+    {
+      path: 'log',
+      name: 'Log',
+      component: Log,
+      meta: {
+        title: '日志管理',
+        breadcrumb: ['主页', '系统管理', '日志管理'],
         auth: true
       }
     }

@@ -28,10 +28,10 @@
               <el-button type="primary" size="small" round icon="el-icon-plus"
                          @click="addMenu">新增同级节点
               </el-button>
-              <el-button v-show="this.isAuth('/system/menu/add')" type="primary" size="small" round icon="el-icon-plus"
+              <el-button type="primary" size="small" round icon="el-icon-plus"
                          @click="addSubMenu">新增子节点
               </el-button>
-              <el-button v-show="this.isAuth('/system/menu/delete')" type="danger" size="small" round
+              <el-button type="danger" size="small" round
                          icon="el-icon-delete" @click="deleteNode">删除该节点
               </el-button>
             </div>

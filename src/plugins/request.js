@@ -25,21 +25,23 @@ function responseErrorHandler (error) {
   switch (error.response.status) {
     case 401:
       Message.error('登录信息已过期，请重新登录！')
-      removeCookie('token')
+      removeCookies()
       router.push({ path: '/login' })
       break
     case 403:
       Message.error('登录信息已过期，请重新登录！')
-      removeCookie('token')
+      removeCookies()
       router.push({ path: '/login' })
       break
-    case 404:
-      Message.error('请求资源的路径或方式不正确！')
-      break
-    case 503:
+    case 404 || 503:
       Message.error('服务不可用！')
       break
   }
+}
+
+function removeCookies () {
+  removeCookie('token')
+  removeCookie('userInfo')
 }
 
 // get请求，可以将参数放在路径，也可以将参数放入data中

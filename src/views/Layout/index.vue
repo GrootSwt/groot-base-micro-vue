@@ -45,7 +45,7 @@
           {{ title }}
         </el-breadcrumb-item>
       </el-breadcrumb>
-      <el-main>
+      <el-main class="main-box">
         <router-view/>
       </el-main>
     </el-container>
@@ -190,5 +190,9 @@ export default {
 
 .el-aside::-webkit-scrollbar-track {
   background-color: rgba(0, 0, 0, 0.1);
+}
+
+.main-box {
+  margin-bottom: 12px;
 }
 </style>

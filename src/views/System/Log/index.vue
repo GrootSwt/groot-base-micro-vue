@@ -59,7 +59,7 @@
 
       <el-table-column label="操作" width="180">
         <template v-slot="{ row }">
-          <el-button size="mini" type="warning" round icon="el-icon-view">查看
+          <el-button size="mini" type="warning" round icon="el-icon-view" @click="openViewLogDialog(row)">查看
           </el-button>
           <el-button size="mini" type="danger" round icon="el-icon-delete" @click="deleteRoleById(row.id)">删除
           </el-button>
@@ -78,15 +78,19 @@
       layout="total, sizes, prev, pager, next, jumper"
       :total="total">
     </el-pagination>
+    <!--日志查看详情对话框-->
+    <view-log :dialog-visible="viewLogDialogFlag" :log-detail="logDetail" @closeDialog="closeViewLogDialog"></view-log>
   </div>
 </template>
 
 <script>
 import { pageableSearchLog, batchDeleteLog } from '@/api/log'
 import { timestampToStr } from '@/utils/format'
+import ViewLog from './ViewLog'
 
 export default {
   name: 'Log',
+  components: { ViewLog },
   data () {
     return {
       searchForm: {
@@ -99,7 +103,9 @@ export default {
       size: 8,
       total: 0,
       logList: [],
-      selectionIdList: []
+      selectionIdList: [],
+      viewLogDialogFlag: false,
+      logDetail: {}
     }
   },
   mounted () {
@@ -165,6 +171,14 @@ export default {
     handleCurrentChange (currentPage) {
       this.page = currentPage
       this.pageableSearch()
+    },
+    openViewLogDialog (row) {
+      this.logDetail = row
+      this.viewLogDialogFlag = true
+    },
+    closeViewLogDialog () {
+      this.logDetail = {}
+      this.viewLogDialogFlag = false
     }
   }
 }

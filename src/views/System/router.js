@@ -2,7 +2,7 @@ export default {
   path: 'system',
   name: 'System',
   component: { render: e => e('router-view') },
-  redirect: () => import('@/views/System/Menu'),
+  redirect: { name: 'Menu' },
   meta: {
     title: '系统管理',
     breadcrumb: ['主页', '系统管理'],

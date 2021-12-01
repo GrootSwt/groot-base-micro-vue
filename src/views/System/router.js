@@ -1,12 +1,8 @@
-import Menu from './Menu'
-import Role from './Role'
-import User from './User'
-import Log from './Log'
 export default {
   path: 'system',
   name: 'System',
   component: { render: e => e('router-view') },
-  redirect: Menu,
+  redirect: () => import('@/views/System/Menu'),
   meta: {
     title: '系统管理',
     breadcrumb: ['主页', '系统管理'],
@@ -16,7 +12,7 @@ export default {
     {
       path: 'menu',
       name: 'Menu',
-      component: Menu,
+      component: () => import('@/views/System/Menu'),
       meta: {
         title: '权限管理',
         breadcrumb: ['主页', '系统管理', '权限管理'],
@@ -26,7 +22,7 @@ export default {
     {
       path: 'role',
       name: 'Role',
-      component: Role,
+      component: () => import('@/views/System/Role'),
       meta: {
         title: '角色管理',
         breadcrumb: ['主页', '系统管理', '角色管理'],
@@ -36,7 +32,7 @@ export default {
     {
       path: 'user',
       name: 'User',
-      component: User,
+      component: () => import('@/views/System/User'),
       meta: {
         title: '用户管理',
         breadcrumb: ['主页', '系统管理', '用户管理'],
@@ -46,7 +42,7 @@ export default {
     {
       path: 'log',
       name: 'Log',
-      component: Log,
+      component: () => import('@/views/System/Log'),
       meta: {
         title: '日志管理',
         breadcrumb: ['主页', '系统管理', '日志管理'],

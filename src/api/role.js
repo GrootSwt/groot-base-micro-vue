@@ -1,6 +1,6 @@
 import { deleteRequest, getRequest, postRequest, putRequest } from '@/plugins/request'
 
-const ROOT_PATH = '/micro-user/role/'
+const ROOT_PATH = '/micro-system/role/'
 
 // 条件分页查询菜单列表
 export function pageableSearchMenu (data) {

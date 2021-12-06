@@ -48,6 +48,16 @@ export default {
         breadcrumb: ['主页', '系统管理', '日志管理'],
         auth: true
       }
+    },
+    {
+      path: 'dict',
+      name: 'Dict',
+      component: () => import('@/views/System/Dict'),
+      meta: {
+        title: '数据字典管理',
+        breadcrumb: ['主页', '系统管理', '数据字典管理'],
+        auth: true
+      }
     }
   ]
 }

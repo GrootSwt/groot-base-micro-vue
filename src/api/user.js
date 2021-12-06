@@ -1,8 +1,8 @@
 import { deleteRequest, getRequest, postRequest, putRequest } from '@/plugins/request'
 
-const ROOT_PATH = '/micro-user/user/'
+const ROOT_PATH = '/micro-system/user/'
 
-const LOGIN_ROOT_PATH = '/micro-user/'
+const LOGIN_ROOT_PATH = '/micro-system/'
 // 登录
 export function login (data) {
   return postRequest(LOGIN_ROOT_PATH + 'login', data)

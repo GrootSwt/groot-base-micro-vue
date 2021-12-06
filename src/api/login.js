@@ -1,6 +1,6 @@
 import { postRequest } from '@/plugins/request'
 
-const ROOT_PATH = '/micro-user/'
+const ROOT_PATH = '/micro-system/'
 
 // 登录
 export function login (data) {

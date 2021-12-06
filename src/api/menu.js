@@ -1,6 +1,6 @@
 import { deleteRequest, getRequest, postRequest } from '@/plugins/request'
 
-const ROOT_PATH = '/micro-user/'
+const ROOT_PATH = '/micro-system/'
 
 // 根据角色id获取权限的菜单、操作树
 export function getMenuTree (data) {

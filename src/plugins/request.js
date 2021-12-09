@@ -1,7 +1,6 @@
 import axios from 'axios'
 import router from '@/router/index'
 import { Message } from 'element-ui'
-// import { removeCookie } from '@/utils/cookies'
 
 const instance = axios.create({
   baseURL: '/'
@@ -41,7 +40,10 @@ function responseErrorHandler (error) {
         }
       })
       break
-    case 404 || 503:
+    case 404:
+      Message.error('服务不可用！')
+      break
+    case 503:
       Message.error('服务不可用！')
       break
   }

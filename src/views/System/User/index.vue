@@ -454,7 +454,6 @@ export default {
           return this.$message.error('请根据提示完善表单信息！')
         }
         authorization(this.authorizeForm).then(res => {
-          console.log(res)
           if (res.status !== 'success') {
             return this.$message.error(res.message)
           }

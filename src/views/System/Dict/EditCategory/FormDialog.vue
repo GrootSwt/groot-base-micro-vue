@@ -8,13 +8,13 @@
       <el-form :model="form" :rules="formRules" ref="formRef" label-width="100px">
         <el-row>
           <el-col :span="12">
-            <el-form-item label="类别名称" prop="categoryName">
-              <el-input v-model="form.categoryName"></el-input>
+            <el-form-item label="key" prop="dictionaryKey">
+              <el-input v-model="form.dictionaryKey"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="key" prop="categoryKey">
-              <el-input v-model="form.categoryKey"></el-input>
+            <el-form-item label="value" prop="dictionaryValue">
+              <el-input v-model="form.dictionaryValue"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import { saveDictionaryCategory } from '@/api/dict'
+import { saveDictionary } from '@/api/dict'
 
 export default {
   name: 'FormDialog',
@@ -53,17 +53,17 @@ export default {
     return {
       form: {},
       formRules: {
-        categoryName: [
+        dictionaryKey: [
           {
             required: true,
-            message: '请输入类别名称！',
+            message: '请输入key！',
             trigger: 'blur'
           }
         ],
-        categoryKey: [
+        dictionaryValue: [
           {
             required: true,
-            message: 'key！',
+            message: '请输入value！',
             trigger: 'blur'
           }
         ]
@@ -88,7 +88,7 @@ export default {
         if (!this.form.id) {
           this.form.enabled = '1'
         }
-        saveDictionaryCategory(this.form).then(res => {
+        saveDictionary(this.form).then(res => {
           if (res.status !== 'success') {
             return this.$message.error(res.message)
           }

@@ -63,7 +63,6 @@ export default {
         if (!valid) {
           return this.$message.error('帐号或密码未填写！')
         }
-        // removeCookie('token')
         login(this.loginFormData).then(res => {
           if (res.status !== 'success') {
             return this.$message.error(res.message)
@@ -71,7 +70,6 @@ export default {
           // 用户信息
           this.setLoginUserInfo(res.data.userInfo)
           // 权限信息
-          setCookie('userInfo', res.data.userInfo)
           setCookie('token', res.data.token)
           this.cancel()
           this.$router.push({ path: this.redirect ? this.redirect : '/' })

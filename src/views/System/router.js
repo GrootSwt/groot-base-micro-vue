@@ -58,6 +58,16 @@ export default {
         breadcrumb: ['主页', '系统管理', '数据字典管理'],
         auth: true
       }
+    },
+    {
+      path: 'editCategory',
+      name: 'EditCategory',
+      component: () => import('@/views/System/Dict/EditCategory'),
+      meta: {
+        title: '数据字典编辑',
+        breadcrumb: ['主页', '系统管理', '数据字典编辑'],
+        auth: true
+      }
     }
   ]
 }

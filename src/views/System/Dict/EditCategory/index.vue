@@ -1,10 +1,9 @@
 <template>
   <div>
-    <!--查询输入框、按钮和新增按钮-->
     <div class="search-add">
       <div class="search-condition">
         <el-input
-          placeholder="请输入数据字典类别名" v-model="searchForm.categoryName" size="small" clearable
+          placeholder="请输入数据字典key" v-model="searchForm.dictionaryKey" size="small" clearable
           style="width: 25%; margin-right: 10px">
         </el-input>
         <el-date-picker
@@ -37,9 +36,9 @@
       </el-table-column>
       <el-table-column type="index" label="#" width="50" align="center">
       </el-table-column>
-      <el-table-column prop="categoryName" label="类别名称">
+      <el-table-column prop="dictionaryKey" label="key">
       </el-table-column>
-      <el-table-column prop="categoryKey" label="key">
+      <el-table-column prop="dictionaryValue" label="value">
       </el-table-column>
       <el-table-column prop="createTime" label="创建时间" width="200">
         <template v-slot="{row}">
@@ -60,13 +59,10 @@
       </el-table-column>
       <el-table-column prop="description" label="描述">
       </el-table-column>
-      <el-table-column label="操作" width="270">
+      <el-table-column label="操作" width="180">
         <template v-slot="{ row }">
           <el-button size="mini" type="primary" round icon="el-icon-edit"
                      @click="openFormDialog('2', row)">编辑
-          </el-button>
-          <el-button size="mini" type="success" round icon="el-icon-view"
-                     @click="detailDictionary(row.id)">明细
           </el-button>
           <el-button size="mini" type="danger" round icon="el-icon-delete"
                      @click="deleteById(row.id)">删除
@@ -96,28 +92,25 @@
 
 <script>
 import BaseMixin from '@/mixins/BaseMixin'
+import FormDialog from '@/views/System/Dict/EditCategory/FormDialog'
 import {
-  pageableSearchDictionaryCategory,
-  batchDeleteDictionaryCategory,
-  changeDictionaryCategoryEnabled
+  batchDeleteDictionary,
+  changeDictionaryEnabled,
+  pageableSearchDictionary
 } from '@/api/dict'
-import FormDialog from '@/views/System/Dict/FormDialog'
 
 export default {
-  name: 'Dict',
-  mixins: [BaseMixin],
+  name: 'EditCategory',
   components: { FormDialog },
+  mixins: [BaseMixin],
   data () {
     return {
       searchForm: {
-        categoryName: '',
+        categoryId: '',
+        dictionaryKey: '',
         dateRange: [],
         enabled: ''
       },
-      tableData: [],
-      page: 0,
-      size: 8,
-      total: 0,
       enabledList: [
         {
           key: '0',
@@ -128,14 +121,17 @@ export default {
           value: '启用'
         }
       ],
+      tableData: [],
       dialogVisible: false,
       formData: {},
       formDialogTitle: '',
-      formState: '',
-      selectionIdList: []
+      page: 1,
+      size: 8,
+      total: 0
     }
   },
   created () {
+    this.searchForm.categoryId = this.$route.query.categoryId
     this.search()
   },
   methods: {
@@ -150,9 +146,9 @@ export default {
         size: this.size,
         searchForm: this.searchForm
       }
-      pageableSearchDictionaryCategory(data).then(res => {
+      pageableSearchDictionary(data).then(res => {
         if (res.status !== 'success') {
-          return this.$message.error(res.message)
+          return this.$message.error(res.message())
         }
         this.tableData = res.data.content
         this.total = parseInt(res.data.totalElements)
@@ -164,6 +160,7 @@ export default {
       this.dialogVisible = true
       switch (type) {
         case '1':
+          this.formData.categoryId = this.searchForm.categoryId
           this.formDialogTitle = '新增'
           break
         case '2':
@@ -201,7 +198,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        batchDeleteDictionaryCategory(this.selectionIdList).then(res => {
+        batchDeleteDictionary(this.selectionIdList).then(res => {
           if (res.status !== 'success') {
             return this.$message.error(res.message)
           }
@@ -216,7 +213,7 @@ export default {
       })
     },
     changeEnabled (id, enabled) {
-      changeDictionaryCategoryEnabled({
+      changeDictionaryEnabled({
         id,
         enabled
       }).then(res => {
@@ -233,7 +230,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        batchDeleteDictionaryCategory([id]).then(res => {
+        batchDeleteDictionary([id]).then(res => {
           if (res.status !== 'success') {
             return this.$message.error(res.message)
           }
@@ -254,12 +251,6 @@ export default {
     handleCurrentChange (page) {
       this.page = page
       this.pageableSearch()
-    },
-    detailDictionary (categoryId) {
-      this.$router.push({
-        path: 'editCategory',
-        query: { categoryId }
-      })
     }
   }
 }

@@ -26,12 +26,22 @@ function responseErrorHandler (error) {
     case 401:
       Message.error('登录信息已过期，请重新登录！')
       removeCookies()
-      router.push({ path: '/login' })
+      router.push({
+        path: '/login',
+        query: {
+          redirect: router.history.current.path
+        }
+      })
       break
     case 403:
       Message.error('登录信息已过期，请重新登录！')
       removeCookies()
-      router.push({ path: '/login' })
+      router.push({
+        path: '/login',
+        query: {
+          redirect: router.history.current.path
+        }
+      })
       break
     case 404 || 503:
       Message.error('服务不可用！')

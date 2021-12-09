@@ -4,10 +4,8 @@
     <div class="search-add">
       <div>
         <el-input placeholder="请输入用户名" v-model="searchForm.username" size="small" clearable
-                  @clear="pageableSearch" @keyup.enter.native="pageableSearch"
                   style="width: 35%; margin-right: 10px"></el-input>
         <el-input placeholder="请输入角色名" v-model="searchForm.roleName" size="small" clearable
-                  @clear="pageableSearch" @keyup.enter.native="pageableSearch"
                   style="width: 35%; margin-right: 10px"></el-input>
         <el-button type="primary" size="small" icon="el-icon-search" round @click="pageableSearch">查询</el-button>
       </div>

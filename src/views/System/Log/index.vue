@@ -4,18 +4,16 @@
     <div class="search-add">
       <div class="search-form">
         <el-input placeholder="请输入服务名" v-model="searchForm.serviceName" size="small" clearable
-                  @clear="search" @keyup.enter.native="search"
                   style="width: 20%; margin-right: 10px"></el-input>
         <el-input placeholder="请输入登录账号" v-model="searchForm.loginName" size="small" clearable
-                  @clear="search" @keyup.enter.native="search"
                   style="width: 20%; margin-right: 10px"></el-input>
         <el-date-picker
           v-model="searchForm.dateRange"
           type="daterange"
-          range-separator="至"
+          range-separator="~"
           start-placeholder="开始日期"
           end-placeholder="结束日期"
-          @change="search"
+          value-format="timestamp"
           size="small"
           style="width: 25%; margin-right: 10px"
         >

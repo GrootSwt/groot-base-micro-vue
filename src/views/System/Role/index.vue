@@ -4,7 +4,7 @@
     <div class="search-add">
       <div>
         <el-input placeholder="请输入角色名" v-model="searchName" size="small" clearable
-                  style="width: 70%; margin-right: 10px" @change="pageableSearch"></el-input>
+                  style="width: 70%; margin-right: 10px"></el-input>
         <el-button type="primary" size="small" icon="el-icon-search" round @click="pageableSearch">查询</el-button>
       </div>
       <div>

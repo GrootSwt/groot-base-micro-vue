@@ -1,7 +1,7 @@
 import axios from 'axios'
 import router from '@/router/index'
 import { Message } from 'element-ui'
-import { removeCookie } from '@/utils/cookies'
+// import { removeCookie } from '@/utils/cookies'
 
 const instance = axios.create({
   baseURL: '/'
@@ -25,7 +25,6 @@ function responseErrorHandler (error) {
   switch (error.response.status) {
     case 401:
       Message.error('登录信息已过期，请重新登录！')
-      removeCookies()
       router.push({
         path: '/login',
         query: {
@@ -35,7 +34,6 @@ function responseErrorHandler (error) {
       break
     case 403:
       Message.error('登录信息已过期，请重新登录！')
-      removeCookies()
       router.push({
         path: '/login',
         query: {
@@ -49,10 +47,10 @@ function responseErrorHandler (error) {
   }
 }
 
-function removeCookies () {
-  removeCookie('token')
-  removeCookie('userInfo')
-}
+// function removeCookies () {
+//   removeCookie('token')
+//   removeCookie('userInfo')
+// }
 
 // get请求，可以将参数放在路径，也可以将参数放入data中
 export function getRequest (url, data = {}) {

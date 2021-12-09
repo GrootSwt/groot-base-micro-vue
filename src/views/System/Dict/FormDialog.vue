@@ -8,12 +8,12 @@
       <el-form :model="form" :rules="formRules" ref="formRef" label-width="100px">
         <el-row>
           <el-col :span="12">
-            <el-form-item label="分类名称" prop="categoryName">
+            <el-form-item label="类别名称" prop="categoryName">
               <el-input v-model="form.categoryName"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="分类键" prop="categoryKey">
+            <el-form-item label="类别键" prop="categoryKey">
               <el-input v-model="form.categoryKey"></el-input>
             </el-form-item>
           </el-col>
@@ -23,14 +23,16 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="handleClose">取消</el-button>
-        <el-button type="primary" @click="handleSubmit">确定</el-button>
+        <el-button size="mini" round icon="el-icon-circle-close" @click="handleClose">取消</el-button>
+        <el-button size="mini" round icon="el-icon-circle-check" type="primary" @click="handleSubmit">确定</el-button>
       </span>
     </el-dialog>
   </div>
 </template>
 
 <script>
+import { saveDictionaryCategory } from '@/api/dict'
+
 export default {
   name: 'FormDialog',
   props: {
@@ -54,14 +56,14 @@ export default {
         categoryName: [
           {
             required: true,
-            message: '请输入分类名称！',
+            message: '请输入类别名称！',
             trigger: 'blur'
           }
         ],
         categoryKey: [
           {
             required: true,
-            message: '请输入分类键！',
+            message: '请输入类别键！',
             trigger: 'blur'
           }
         ]
@@ -75,10 +77,26 @@ export default {
   },
   methods: {
     handleClose () {
+      this.$refs.formRef.resetFields()
       this.$emit('close')
     },
     handleSubmit () {
-      this.$emit('submit')
+      this.$refs.formRef.validate(valid => {
+        if (!valid) {
+          return this.$message.error('请根据表单提示完善表单内容！')
+        }
+        if (!this.form.id) {
+          this.form.enabled = '1'
+        }
+        saveDictionaryCategory(this.form).then(res => {
+          if (res.status !== 'success') {
+            return this.$message.error(res.message)
+          }
+          this.$emit('afterSubmit')
+          this.$refs.formRef.resetFields()
+          this.$message.success(res.message)
+        })
+      })
     }
   }
 }

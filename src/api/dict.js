@@ -1,4 +1,4 @@
-import { getRequest } from '@/plugins/request'
+import { deleteRequest, getRequest, postRequest, putRequest } from '@/plugins/request'
 
 const ROOT_PATH = '/micro-dict/'
 
@@ -17,4 +17,16 @@ export function pageableSearchDictionaryCategory (data) {
     url += `&s_enabled=${data.searchForm.enabled}`
   }
   return getRequest(url)
+}
+
+export function saveDictionaryCategory (data) {
+  return postRequest(DICTIONARY_CATEGORY_ROOT_PATH + 'save', data)
+}
+
+export function batchDeleteDictionaryCategory (idArr) {
+  return deleteRequest(DICTIONARY_CATEGORY_ROOT_PATH + `batchDelete?idArr=${idArr}`)
+}
+
+export function changeDictionaryCategoryEnabled (data) {
+  return putRequest(DICTIONARY_CATEGORY_ROOT_PATH + 'modifyEnabled', data)
 }

@@ -82,12 +82,13 @@
 </template>
 
 <script>
+import BaseMixin from '@/mixins/BaseMixin'
 import { pageableSearchLog, batchDeleteLog } from '@/api/log'
-import { timestampToStr } from '@/utils/format'
 import ViewLog from './ViewLog'
 
 export default {
   name: 'Log',
+  mixins: [BaseMixin],
   components: { ViewLog },
   data () {
     return {
@@ -127,7 +128,7 @@ export default {
       }
       this.logList = res.data.content
       this.logList.forEach(item => {
-        item.createTimeStr = timestampToStr(item.createTime, 'yyyy-MM-dd HH:mm:ss')
+        item.createTimeStr = this.formatTime(item.createTime)
       })
       this.total = res.data.totalElements
     },

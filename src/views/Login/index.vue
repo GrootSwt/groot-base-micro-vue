@@ -23,7 +23,7 @@
 
 <script>
 import { mapMutations } from 'vuex'
-import { removeCookie, setCookie } from '@/utils/cookies'
+import { setCookie } from '@/utils/cookies'
 import { login } from '@/api/login'
 
 export default {
@@ -63,7 +63,7 @@ export default {
         if (!valid) {
           return this.$message.error('帐号或密码未填写！')
         }
-        removeCookie('token')
+        // removeCookie('token')
         login(this.loginFormData).then(res => {
           if (res.status !== 'success') {
             return this.$message.error(res.message)

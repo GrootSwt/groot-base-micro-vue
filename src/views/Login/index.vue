@@ -23,7 +23,6 @@
 
 <script>
 import { mapMutations } from 'vuex'
-import { setCookie } from '@/utils/cookies'
 import { login } from '@/api/login'
 
 export default {
@@ -70,7 +69,6 @@ export default {
           // 用户信息
           this.setLoginUserInfo(res.data.userInfo)
           // 权限信息
-          setCookie('token', res.data.token)
           this.cancel()
           this.$router.push({ path: this.redirect ? this.redirect : '/' })
         })

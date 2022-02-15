@@ -1,20 +1,19 @@
 <template>
   <div>
     <!--查询输入框、按钮和新增按钮-->
-    <div class="search-add">
-      <div>
+    <search-box>
+      <template v-slot:form>
         <el-input placeholder="请输入角色名" v-model="searchName" size="small" clearable
-                  style="width: 70%; margin-right: 10px"></el-input>
+                  style="width: 35%; margin-right: 10px"></el-input>
         <el-button type="primary" size="small" icon="el-icon-search" round @click="pageableSearch">查询</el-button>
-      </div>
-      <div>
+      </template>
+      <template v-slot:operation>
         <el-button type="success" size="small" icon="el-icon-plus" round @click="openAddDialog">新增</el-button>
         <el-button type="danger" size="small" icon="el-icon-delete" round @click="batchDelete">批量删除</el-button>
-      </div>
-    </div>
-    <!--角色列表-->
+      </template>
+    </search-box>
     <el-table border stripe :data="roleList" style="width: 100%;" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="50" align="center" :selectable="selectable">
+      <el-table-column type="selection" width="50" align="center">
       </el-table-column>
       <el-table-column type="index" label="#" width="50" align="center">
       </el-table-column>
@@ -26,7 +25,6 @@
         <template v-slot="{ row }">
           <el-switch
             v-model="row.enabled"
-            :disabled="row.id === 1"
             active-value="1"
             inactive-value="0"
             active-color="#13ce66"
@@ -37,12 +35,12 @@
       </el-table-column>
       <el-table-column label="操作" width="300">
         <template v-slot="{ row }">
-          <el-button size="mini" type="primary" round icon="el-icon-setting" :disabled="row.id === 1"
+          <el-button size="mini" type="primary" round icon="el-icon-setting"
                      @click="openAssignDialog(row.id)">分配权限
           </el-button>
           <el-button size="mini" type="warning" round icon="el-icon-edit-outline" @click="openEditDialog(row)">编辑
           </el-button>
-          <el-button size="mini" type="danger" round icon="el-icon-delete" :disabled="row.id === 1"
+          <el-button size="mini" type="danger" round icon="el-icon-delete"
                      @click="deleteRoleById(row.id)">删除
           </el-button>
         </template>
@@ -78,7 +76,6 @@
             <el-form-item label="启用状态" prop="enabled">
               <el-switch
                 v-model="roleForm.enabled"
-                :disabled="roleForm.id === 1"
                 active-value="1"
                 inactive-value="0"
                 active-color="#13ce66"
@@ -147,13 +144,33 @@ import {
   batchDeleteByIds, changeRoleEnabled,
   getMenuIdArrByRoleId,
   pageableSearchMenu,
-  saveRole
+  saveRole,
+  roleNameIsExist
 } from '@/api/role'
 import { getAllMenuForUser } from '@/api/menu'
 
+import SearchBox from '@/components/System/SearchBox'
+
 export default {
   name: 'Role',
+  components: { SearchBox },
   data () {
+    const validateName = async (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error('请输入角色名称！'))
+      }
+      if (value.length > 20) {
+        return callback(new Error('角色名称长度范围在1-20之内！'))
+      }
+      const res = await roleNameIsExist(value)
+      if (res.status !== 'success') {
+        return this.$message.error('获取角色名称是否存在失败！')
+      }
+      if (res.data) {
+        return callback(new Error('该角色名已存在，请更改！'))
+      }
+      callback()
+    }
     return {
       // 查询条件角色名
       searchName: '',
@@ -179,14 +196,7 @@ export default {
       roleFormRules: {
         name: [
           {
-            required: true,
-            message: '请输入角色名称！',
-            trigger: 'blur'
-          },
-          {
-            min: 1,
-            max: 20,
-            message: '角色名称长度范围在1-20之内！',
+            validator: validateName,
             trigger: 'blur'
           }
         ],
@@ -249,8 +259,8 @@ export default {
         if (res.status !== 'success') {
           return this.$message.error(res.message)
         }
-        this.roleList = res.data.content
-        this.total = res.data.totalElements
+        this.roleList = res.data
+        this.total = res.total
       })
     },
     // 每页数据条数改变
@@ -402,10 +412,7 @@ export default {
         })
       })
     },
-    // table多选框是否可选
-    selectable (row) {
-      return row.id !== 1
-    },
+
     // 修改角色启用状态
     changeRoleEnabled (id, enabled) {
       const role = {
@@ -426,11 +433,5 @@ export default {
 </script>
 
 <style scoped>
-.search-add {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-}
+
 </style>

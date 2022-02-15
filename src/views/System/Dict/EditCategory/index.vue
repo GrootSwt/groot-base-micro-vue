@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="search-add">
+    <div class="cg-search-box">
       <div class="search-condition">
         <el-input
           placeholder="请输入数据字典key" v-model="searchForm.dictionaryKey" size="small" clearable
@@ -150,8 +150,8 @@ export default {
         if (res.status !== 'success') {
           return this.$message.error(res.message())
         }
-        this.tableData = res.data.content
-        this.total = parseInt(res.data.totalElements)
+        this.tableData = res.data
+        this.total = parseInt(res.total)
       })
     },
     openFormDialog (type, row = {}) {
@@ -257,13 +257,6 @@ export default {
 </script>
 
 <style scoped>
-.search-add {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-}
 
 .search-condition {
   width: 80%;

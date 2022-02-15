@@ -9,17 +9,17 @@
         <span v-else>{{ loginUserInfo.username }}</span>
       </span>
       <el-dropdown-menu slot="dropdown" style="text-align: center">
-        <el-dropdown-item>
-          <span @click="openModifyAvatarDialog">设置头像</span>
+        <el-dropdown-item @click.native="openModifyAvatarDialog">
+          <span>设置头像</span>
         </el-dropdown-item>
-        <el-dropdown-item>
-          <span @click="openModifyUserInfoDialog">修改信息</span>
+        <el-dropdown-item @click.native="openModifyUserInfoDialog">
+          <span>修改信息</span>
         </el-dropdown-item>
-        <el-dropdown-item>
-          <span @click="changePassword">更改密码</span>
+        <el-dropdown-item @click.native="changePassword">
+          <span>更改密码</span>
         </el-dropdown-item>
-        <el-dropdown-item>
-          <span @click="logout">退出</span>
+        <el-dropdown-item @click.native="logout">
+          <span>退出</span>
         </el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
@@ -64,7 +64,8 @@
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button size="mini" round icon="el-icon-circle-close" @click="closeModifyUserInfoDialog">取 消</el-button>
-        <el-button size="mini" round icon="el-icon-circle-check" type="primary" @click="submitModifyUserInfo">确 定</el-button>
+        <el-button size="mini" round icon="el-icon-circle-check" type="primary"
+                   @click="submitModifyUserInfo">确 定</el-button>
       </span>
     </el-dialog>
     <!--设置头像对话框-->
@@ -105,9 +106,10 @@
 
 <script>
 import { mapState, mapMutations } from 'vuex'
-import { removeCookie, getCookie, setCookie } from '@/utils/cookies'
-import { modifyAvatar, modifyUserInfo } from '@/api/user'
-import { deleteFileById } from '@/api/oss'
+import { removeCookie, getCookie, setCookie } from '@/utils/util'
+import { modifyAvatar, modifyUserInfo, changePassword } from '@/api/user'
+import { deleteFileById, DOWNLOAD_URL, UPLOAD_URL } from '@/api/oss'
+import { logout } from '@/api/login'
 
 export default {
   name: 'LoginInfo',
@@ -215,8 +217,8 @@ export default {
         ]
       },
       modifyAvatarDialogFlag: false,
-      downloadUrl: '/micro-oss/fileOperation/download/',
-      uploadUrl: '/micro-oss/fileOperation/upload',
+      downloadUrl: DOWNLOAD_URL,
+      uploadUrl: UPLOAD_URL,
       avatarList: [],
       currentAvatar: ''
     }
@@ -237,10 +239,16 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        removeCookie('token')
-        removeCookie('userInfo')
-        removeCookie('authority')
-        this.$router.push('/login')
+        logout().then(res => {
+          if (res.status !== 'success') {
+            return this.$message.error('退出失败！')
+          }
+          this.$message.success(res.message)
+          removeCookie('token')
+          removeCookie('userInfo')
+          removeCookie('accountName')
+          this.$router.push('/login')
+        })
       }).catch(() => {
         this.$message({
           type: 'info',
@@ -258,11 +266,12 @@ export default {
           return this.$message.error('请根据提示完善表单信息！')
         }
         const userInfo = JSON.parse(getCookie('userInfo'))
-        this.putRequest('/micro-user/user/changePassword', {
+        const data = {
           id: userInfo.id,
           oldPassword: this.passwordForm.oldPassword,
           newPassword: this.passwordForm.newPassword
-        }).then(res => {
+        }
+        changePassword(data).then(res => {
           if (res.status !== 'success') {
             return this.$message.error(res.message)
           }

@@ -1,6 +1,6 @@
 import { getRequest, deleteRequest } from '@/plugins/request'
 
-const ROOT_PATH = '/micro-log/'
+const ROOT_PATH = '/micro-log/auditLog/'
 
 // 条件分页查询日志
 export function pageableSearchLog (data) {
@@ -16,10 +16,10 @@ export function pageableSearchLog (data) {
     url += `&s_startDate=${data.searchForm.dateRange[0]}`
     url += `&s_endDate=${data.searchForm.dateRange[1]}`
   }
-  return getRequest(ROOT_PATH + 'auditLog/pageableSearch' + url)
+  return getRequest(ROOT_PATH + 'pageableSearch' + url)
 }
 
 // 批量删除日志
 export function batchDeleteLog (idList) {
-  return deleteRequest(ROOT_PATH + 'auditLog/batchDelete?idArr=' + idList)
+  return deleteRequest(ROOT_PATH + 'batchDelete?idArr=' + idList)
 }

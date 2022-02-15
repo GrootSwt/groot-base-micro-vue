@@ -25,14 +25,17 @@
         <el-row>
           <el-col :span="20">
             <div style="text-align: center; margin-bottom: 12px">
-              <el-button type="primary" size="small" round icon="el-icon-plus"
+              <el-button type="primary" size="small" round
+                         icon="el-icon-plus" v-show="this.verify('addSameNode')"
                          @click="addMenu">新增同级节点
               </el-button>
-              <el-button type="primary" size="small" round icon="el-icon-plus"
+              <el-button type="primary" size="small" round
+                         icon="el-icon-plus" v-show="this.verify('addSubNode')"
                          @click="addSubMenu">新增子节点
               </el-button>
               <el-button type="danger" size="small" round
-                         icon="el-icon-delete" @click="deleteNode">删除该节点
+                         icon="el-icon-delete" v-show="this.verify('deleteNode')"
+                         @click="deleteNode">删除该节点
               </el-button>
             </div>
             <el-form :model="menuForm" :rules="menuFormRules" ref="menuFormRef" label-width="80px">
@@ -87,11 +90,27 @@
 </template>
 
 <script>
-import { getAllMenu, deleteMenuByIdArr, saveMenu } from '@/api/menu'
+import { getAllMenu, deleteMenuByIdArr, saveMenu, pathIsExist } from '@/api/menu'
 
 export default {
   name: 'Menu',
   data () {
+    const validateLocation = async (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error('请输入菜单路径！'))
+      } else if (value.length > 50) {
+        return callback(new Error('菜单路径长度范围为1-50!'))
+      } else {
+        const res = await pathIsExist(value)
+        if (res.status !== 'success') {
+          return this.$message.error('菜单路径是否已经存在校验失败！')
+        }
+        if (res.data) {
+          callback(new Error('菜单路径已经存在，请更改！'))
+        }
+        callback()
+      }
+    }
     return {
       // 菜单树
       menuTree: [],
@@ -138,14 +157,7 @@ export default {
         ],
         location: [
           {
-            required: true,
-            message: '请输入菜单路径！',
-            trigger: 'blur'
-          },
-          {
-            min: 1,
-            max: 50,
-            message: '菜单路径长度范围为1-50',
+            validator: validateLocation,
             trigger: 'blur'
           }
         ],

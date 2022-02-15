@@ -43,3 +43,23 @@ export function addOrEditUser (data) {
 export function changeUserEnabled (data) {
   return putRequest(ROOT_PATH + 'changeUserEnabled', data)
 }
+
+// 更改密码
+export function changePassword (data) {
+  return putRequest(ROOT_PATH + 'changePassword', data)
+}
+
+// 登录名是否存在
+export function loginNameIsExist (loginName) {
+  return getRequest(ROOT_PATH + `${loginName}/loginNameIsExist`)
+}
+
+// 联系方式是否存在
+export function phoneNumberIsExist (phoneNumber) {
+  return getRequest(ROOT_PATH + `${phoneNumber}/phoneNumberIsExist`)
+}
+
+// 电子邮件是否存在
+export function emailIsExist (email) {
+  return getRequest(ROOT_PATH + `${email}/emailIsExist`)
+}

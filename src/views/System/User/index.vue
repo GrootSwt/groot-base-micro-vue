@@ -1,22 +1,22 @@
 <template>
   <div>
     <!--查询输入框、按钮和新增按钮-->
-    <div class="search-add">
-      <div>
+    <search-box>
+      <template v-slot:form>
         <el-input placeholder="请输入用户名" v-model="searchForm.username" size="small" clearable
                   style="width: 35%; margin-right: 10px"></el-input>
         <el-input placeholder="请输入角色名" v-model="searchForm.roleName" size="small" clearable
                   style="width: 35%; margin-right: 10px"></el-input>
         <el-button type="primary" size="small" icon="el-icon-search" round @click="pageableSearch">查询</el-button>
-      </div>
-      <div>
+      </template>
+      <template v-slot:operation>
         <el-button type="success" size="small" icon="el-icon-plus" round @click="openAddDialog">新增</el-button>
         <el-button type="danger" size="small" icon="el-icon-delete" round @click="batchDelete">批量删除</el-button>
-      </div>
-    </div>
+      </template>
+    </search-box>
     <!--用户列表-->
     <el-table border stripe :data="userList" style="width: 100%;" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="50" align="center" :selectable="isSelectable">
+      <el-table-column type="selection" width="50" align="center">
       </el-table-column>
       <el-table-column type="index" label="#" width="50" align="center">
       </el-table-column>
@@ -34,7 +34,6 @@
         <template v-slot="{ row }">
           <el-switch
             v-model="row.enabled"
-            :disabled="row.id === 1"
             active-value="1"
             inactive-value="0"
             active-color="#13ce66"
@@ -43,14 +42,12 @@
           </el-switch>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="180">
+      <el-table-column label="操作" width="280">
         <template v-slot="{ row }">
-          <!--<el-button size="mini" type="primary" round icon="el-icon-edit" @click="openEditDialog(row)">编辑</el-button>-->
-          <el-button size="mini" type="warning" round icon="el-icon-setting" @click="openAuthorizeDialog(row)"
-                     :disabled="row.id === 1">授权
+          <el-button size="mini" type="primary" round icon="el-icon-edit" @click="openEditDialog(row)">编辑</el-button>
+          <el-button size="mini" type="warning" round icon="el-icon-setting" @click="openAuthorizeDialog(row)">授权
           </el-button>
-          <el-button size="mini" type="danger" round :disabled="row.id === 1" icon="el-icon-delete"
-                     @click="deleteRoleById(row.id)">删除
+          <el-button size="mini" type="danger" round icon="el-icon-delete" @click="deleteRoleById(row.id)">删除
           </el-button>
         </template>
       </el-table-column>
@@ -89,7 +86,7 @@
         <el-form-item label="邮箱" prop="email">
           <el-input type="email" v-model="userForm.email"></el-input>
         </el-form-item>
-        <el-form-item label="角色" prop="roleId" v-if="userForm.id !== 1">
+        <el-form-item label="角色" prop="roleId">
           <el-select v-model="userForm.roleId" placeholder="请选择角色">
             <el-option
               v-for="item in roleList"
@@ -102,7 +99,6 @@
         <el-form-item label="启用状态" prop="enabled">
           <el-switch
             v-model="userForm.enabled"
-            :disabled="userForm.id === 1"
             active-value="1"
             inactive-value="0"
             active-color="#13ce66"
@@ -123,7 +119,7 @@
       :before-close="closeAuthorizeDialog">
       <el-form :model="authorizeForm" :rules="authorizeFormRules" ref="authorizeFormRef" label-width="100px"
                class="demo-ruleForm">
-        <el-form-item label="用户角色" prop="roleId" v-if="userForm.id !== 1">
+        <el-form-item label="用户角色" prop="roleId">
           <el-select v-model="authorizeForm.roleId" placeholder="请选择角色">
             <el-option
               v-for="item in roleList"
@@ -147,13 +143,16 @@ import {
   addOrEditUser,
   authorization,
   batchDeleteUser,
-  changeUserEnabled,
-  pageableSearchUser
+  changeUserEnabled, emailIsExist,
+  loginNameIsExist,
+  pageableSearchUser, phoneNumberIsExist
 } from '@/api/user'
 import { getAllRoleList } from '@/api/role'
+import SearchBox from '@/components/System/SearchBox'
 
 export default {
   name: 'User',
+  components: { SearchBox },
   data () {
     const checkRoleId = (rule, value, callback) => {
       let flag = true
@@ -169,6 +168,54 @@ export default {
       } else {
         return callback()
       }
+    }
+    const validateLoginName = async (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error('请输入登录名！'))
+      }
+      if (value.length > 20) {
+        return callback(new Error('登录名字符长度范围为1~20！'))
+      }
+      const res = await loginNameIsExist(value)
+      if (res.status !== 'success') {
+        return this.$message.error('获取账号名是否存在失败！')
+      }
+      if (res.data) {
+        return callback(new Error('登录名已存在，请更换！'))
+      }
+      callback()
+    }
+    const validatePhoneNumber = async (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error('请输入联系方式！'))
+      }
+      if (value.length > 20 || value.length < 4) {
+        return callback(new Error('联系方式字符长度范围为4~20！'))
+      }
+      const res = await phoneNumberIsExist(value)
+      if (res.status !== 'success') {
+        return this.$message.error('获取联系方式是否存在失败！')
+      }
+      if (res.data) {
+        return callback(new Error('联系方式已存在，请更换！'))
+      }
+      callback()
+    }
+    const validateEmail = async (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error('请输入电子邮件！'))
+      }
+      if (value.length > 30 || value.length < 5) {
+        return callback(new Error('电子邮件字符长度范围为5~30！'))
+      }
+      const res = await emailIsExist(value)
+      if (res.status !== 'success') {
+        return this.$message.error('获取电子邮件是否存在失败！')
+      }
+      if (res.data) {
+        return callback(new Error('电子邮件已存在，请更换！'))
+      }
+      callback()
     }
     return {
       searchForm: {
@@ -189,20 +236,13 @@ export default {
         username: '',
         phoneNumber: '',
         email: '',
-        roleId: 1,
+        roleId: '',
         enabled: '1'
       },
       userFormRules: {
         loginName: [
           {
-            required: true,
-            message: '请输入账号',
-            trigger: 'blur'
-          },
-          {
-            min: 1,
-            max: 20,
-            message: '账号的长度范围1-20',
+            validator: validateLoginName,
             trigger: 'blur'
           }
         ],
@@ -234,27 +274,13 @@ export default {
         ],
         phoneNumber: [
           {
-            required: true,
-            message: '请输入联系方式',
-            trigger: 'blur'
-          },
-          {
-            min: 1,
-            max: 20,
-            message: '联系方式的长度范围3-20',
+            validator: validatePhoneNumber,
             trigger: 'blur'
           }
         ],
         email: [
           {
-            required: true,
-            message: '请输入邮箱',
-            trigger: 'blur'
-          },
-          {
-            min: 1,
-            max: 30,
-            message: '邮箱的长度范围5-30',
+            validator: validateEmail,
             trigger: 'blur'
           }
         ],
@@ -312,12 +338,9 @@ export default {
         if (res.status !== 'success') {
           this.$message.error(res.message)
         }
-        this.userList = res.data.content
-        this.total = res.data.totalElements
+        this.userList = res.data
+        this.total = res.total
       })
-    },
-    isSelectable (row) {
-      return row.id !== 1
     },
     // 批量删除
     batchDelete () {
@@ -396,6 +419,7 @@ export default {
     // 取消新增或者编辑用户
     addOrEditCancel () {
       this.$refs.userFormRef.resetFields()
+      console.log(this.userForm)
       this.editOrAddVisible = false
     },
     // 提交编辑或新增用户
@@ -468,11 +492,5 @@ export default {
 </script>
 
 <style scoped>
-.search-add {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-}
+
 </style>
